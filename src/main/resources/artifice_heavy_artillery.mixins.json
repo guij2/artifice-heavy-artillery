@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "com.heavyartillery.mixin",
+  "client": [
+    "AmmoCountHudOverlayMixin",
+    "ClientHelperMixin",
+    "CrosshairRendererMixin",
+    "GunArmPosesMixin",
+    "GunInHandRendererMixin",
+    "LocalPlayerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "BulletMixin",
+    "CowboyHatItemMixin",
+    "GunItemMixin",
+    "GunplayManagerMixin",
+    "RecoilHelperMixin",
+    "TricorneItemMixin"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "minecraft:blaze_rod"
+    },
+    "C": {
+      "tag": "c:ingots/copper"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "M": {
+      "item": "irons_artifice:clockwork_components"
+    }
+  },
+  "pattern": [
+    "IBI",
+    "CMC",
+    "IBI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "artifice_heavy_artillery:heavy_components"
+  }
+}

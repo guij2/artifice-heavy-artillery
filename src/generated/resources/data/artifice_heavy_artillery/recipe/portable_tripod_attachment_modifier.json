@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "H": {
+      "item": "artifice_heavy_artillery:heavy_components"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    }
+  },
+  "pattern": [
+    " H ",
+    " I ",
+    "I I"
+  ],
+  "result": {
+    "count": 1,
+    "id": "artifice_heavy_artillery:portable_tripod_attachment_modifier"
+  }
+}

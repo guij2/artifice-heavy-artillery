@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "H": {
+      "item": "artifice_heavy_artillery:heavy_components"
+    },
+    "P": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "PHP",
+    "PSP",
+    " S "
+  ],
+  "result": {
+    "count": 1,
+    "id": "artifice_heavy_artillery:powder_ram_modifier"
+  }
+}

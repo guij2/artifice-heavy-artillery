@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "tag": "c:storage_blocks/iron"
+    },
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "M": {
+      "item": "artifice_heavy_artillery:heavy_components"
+    },
+    "N": {
+      "tag": "c:ingots/netherite"
+    }
+  },
+  "pattern": [
+    "BBH",
+    "MNM",
+    " L "
+  ],
+  "result": {
+    "count": 1,
+    "id": "artifice_heavy_artillery:gunsteel_gatling"
+  }
+}

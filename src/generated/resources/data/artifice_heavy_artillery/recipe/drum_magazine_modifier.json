@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "tag": "c:ingots/copper"
+    },
+    "H": {
+      "item": "artifice_heavy_artillery:heavy_components"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    }
+  },
+  "pattern": [
+    "ICI",
+    "CHC",
+    "ICI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "artifice_heavy_artillery:drum_magazine_modifier"
+  }
+}
