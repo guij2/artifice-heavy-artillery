@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "#c:storage_blocks/iron",
+    "H": "artifice_heavy_artillery:heavy_components"
+  },
+  "pattern": [
+    "B",
+    "H",
+    "B"
+  ],
+  "result": {
+    "id": "artifice_heavy_artillery:rifled_barrel_modifier"
+  }
+}

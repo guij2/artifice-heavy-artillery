@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "#c:storage_blocks/iron",
+    "M": "artifice_heavy_artillery:heavy_components",
+    "N": "#c:ingots/netherite",
+    "R": "minecraft:firework_rocket",
+    "W": "#minecraft:logs"
+  },
+  "pattern": [
+    "IIR",
+    "MNM",
+    " W "
+  ],
+  "result": {
+    "id": "artifice_heavy_artillery:gunsteel_congreve"
+  }
+}

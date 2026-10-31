@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "neoforge:ingredient_type": "artifice_heavy_artillery:full_bullet_container"
+    },
+    "E": "irons_artifice:enchanted_bullet_modifier",
+    "I": {
+      "neoforge:ingredient_type": "artifice_heavy_artillery:stored_enchantment",
+      "enchantment": "minecraft:infinity"
+    }
+  },
+  "pattern": [
+    "BEB",
+    "EIE",
+    "BEB"
+  ],
+  "result": {
+    "id": "artifice_heavy_artillery:enchanted_magazine_modifier"
+  }
+}

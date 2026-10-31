@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "artifice_heavy_artillery:item/reflex_sight_attachment_modifier"
+  }
+}

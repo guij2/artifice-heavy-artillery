@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_enchanted_bullet_modifier": {
+      "conditions": {
+        "items": [
+          {
+            "items": "irons_artifice:enchanted_bullet_modifier"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "artifice_heavy_artillery:enchanted_magazine_modifier"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_enchanted_bullet_modifier"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "artifice_heavy_artillery:enchanted_magazine_modifier"
+    ]
+  }
+}

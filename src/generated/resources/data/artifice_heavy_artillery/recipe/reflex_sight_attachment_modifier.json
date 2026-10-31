@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "#c:ingots/copper",
+    "G": "#c:glass_panes",
+    "M": "irons_artifice:simple_mechanical_components"
+  },
+  "pattern": [
+    "CGC",
+    " M "
+  ],
+  "result": {
+    "id": "artifice_heavy_artillery:reflex_sight_attachment_modifier"
+  }
+}

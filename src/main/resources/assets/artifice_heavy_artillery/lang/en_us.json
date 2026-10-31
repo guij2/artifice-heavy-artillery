@@ -1,0 +1,43 @@
+{
+  "itemGroup.artifice_heavy_artillery": "Arms 'n Artifice: Heavy Artillery",
+
+  "item.artifice_heavy_artillery.gunsteel_gatling": "Gunsteel Gatling",
+  "item.artifice_heavy_artillery.gunsteel_crucible": "Gunsteel Crucible",
+  "item.artifice_heavy_artillery.gunsteel_congreve": "Gunsteel Congreve",
+  "item.artifice_heavy_artillery.heavy_components": "Heavy Components",
+  "item.artifice_heavy_artillery.enchanted_magazine_modifier": "Enchanted Magazine Modifier",
+  "item.artifice_heavy_artillery.portable_tripod_attachment_modifier": "Tripod Attachment Modifier",
+  "item.artifice_heavy_artillery.reflex_sight_attachment_modifier": "Reflex Sight Attachment Modifier",
+  "item.artifice_heavy_artillery.drum_magazine_modifier": "Drum Magazine Modifier",
+  "item.artifice_heavy_artillery.rifled_barrel_modifier": "Rifled Barrel Modifier",
+  "item.artifice_heavy_artillery.powder_ram_modifier": "Powder Ram Modifier",
+
+  "artifice_heavy_artillery.modifier.enchanted_magazine": "Reloads draw no Bullets from your Inventory",
+  "artifice_heavy_artillery.modifier.portable_tripod": "Enables Tripod Mounting",
+  "artifice_heavy_artillery.modifier.reflex_sight": "Enables Aiming Down Sights",
+  "artifice_heavy_artillery.modifier.reflex_sight.aimed": "-%s%% Spread and -%s%% Recoil while aiming",
+  "artifice_heavy_artillery.modifier.rifled_barrel": "+%s%% Damage per block the shot travels, up to +%s%%",
+  "artifice_heavy_artillery.modifier.powder_ram": "Up to +%s%% Damage, building over %ss since your last shot",
+
+  "artifice_heavy_artillery.tooltip.spin_up": "Spins up to %s Fire Rate over %s shots",
+  "artifice_heavy_artillery.tooltip.molten": "Melts Bullets into a molten spray reaching %s blocks",
+  "artifice_heavy_artillery.tooltip.ammo_cost": "Each round is packed from %s Bullets",
+  "artifice_heavy_artillery.tooltip.rockets": "Shoots rockets packed from %s Bullets",
+
+  "artifice_heavy_artillery.component_type.spin_up_delay": "Spin-Up Delay",
+  "artifice_heavy_artillery.component_type.spin_up_shots": "Spin-Up Shots",
+  "artifice_heavy_artillery.component_type.spin_down_grace": "Spin-Down Grace",
+  "artifice_heavy_artillery.component_type.brace_spread_reduction": "Braced Spread Reduction",
+  "artifice_heavy_artillery.component_type.brace_recoil_reduction": "Braced Recoil Reduction",
+  "artifice_heavy_artillery.component_type.mounted_spread_reduction": "Mounted Spread Reduction",
+  "artifice_heavy_artillery.component_type.mounted_recoil_reduction": "Mounted Recoil Reduction",
+  "artifice_heavy_artillery.component_type.aimed_spread_reduction": "Aimed Spread Reduction",
+  "artifice_heavy_artillery.component_type.aimed_recoil_reduction": "Aimed Recoil Reduction",
+  "artifice_heavy_artillery.component_type.reserve_ammo_cost": "Reserve Ammo Cost",
+  "artifice_heavy_artillery.component_type.molten": "Molten Shot",
+  "artifice_heavy_artillery.component_type.ignite_block_chance": "Block Ignite Chance",
+  "artifice_heavy_artillery.component_type.airborne_blowback": "Airborne Blowback",
+  "artifice_heavy_artillery.component_type.magazine_capacity": "Magazine Capacity",
+  "artifice_heavy_artillery.component_type.rifling": "Rifling",
+  "artifice_heavy_artillery.component_type.powder_ram": "Powder Ram"
+}

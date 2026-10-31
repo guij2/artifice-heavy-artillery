@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "artifice_heavy_artillery:item/heavy_shouldered_display",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}
