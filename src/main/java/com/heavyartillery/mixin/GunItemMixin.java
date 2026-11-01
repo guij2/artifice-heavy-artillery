@@ -21,11 +21,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * The gun's tooltip (capacity, and whether to show fire rate) and its durability bar use the capacity after
  * {@link MagazineSize}. A gun with a reflex sight aims down it while use is held ({@link SightAim}).
  */
+// The tooltip and bar hooks are cosmetic (require = 0): if another mod reworks them, only the number shown is off, not
+// the game. Dev runs still fail on a miss (mixin.debug.countInjections).
 @Mixin(GunItem.class)
 public abstract class GunItemMixin {
     @ModifyExpressionValue(
             method = "appendHoverText",
-            at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/gun/GunProfile;magazineCapacity()I")
+            at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/gun/GunProfile;magazineCapacity()I"),
+            require = 0
     )
     private int artifice_heavy_artillery$tooltipCapacity(int base, @Local(argsOnly = true) ItemStack stack) {
         return MagazineSize.capacity(stack, base);
@@ -33,7 +36,8 @@ public abstract class GunItemMixin {
 
     @ModifyExpressionValue(
             method = "getBarWidth",
-            at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/item/GunItem;magazineCapacity()I")
+            at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/item/GunItem;magazineCapacity()I"),
+            require = 0
     )
     private int artifice_heavy_artillery$barCapacity(int base, @Local(argsOnly = true) ItemStack stack) {
         return MagazineSize.capacity(stack, base);

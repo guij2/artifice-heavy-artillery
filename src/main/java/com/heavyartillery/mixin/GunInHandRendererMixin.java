@@ -17,21 +17,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Draws the Portable Tripod alongside the parent's attachments, on every gun (see {@link PortableTripodRenderer}), and
  * raises a gun to the eye while aiming down its reflex sight ({@link SightAimPose}).
  */
+// Cosmetic hooks (require = 0): if another mod reworks a target, only the effect is lost, not the game. Dev runs still
+// fail on a miss (mixin.debug.countInjections).
 @Mixin(GunInHandRenderer.class)
 public abstract class GunInHandRendererMixin {
-    @Inject(method = "captureDefaultRenderState", at = @At("TAIL"))
+    @Inject(method = "captureDefaultRenderState", at = @At("TAIL"), require = 0)
     private void artifice_heavy_artillery$captureTripod(GunItem animatable, GeoItemRenderer.RenderData renderData, GeoRenderState renderState,
                                                         float partialTick, CallbackInfo ci) {
         PortableTripodRenderer.captureRenderState(animatable, renderData, renderState, partialTick);
         SightAimPose.captureRenderState(renderData, renderState, partialTick);
     }
 
-    @Inject(method = "adjustRenderPose", at = @At("TAIL"))
+    @Inject(method = "adjustRenderPose", at = @At("TAIL"), require = 0)
     private void artifice_heavy_artillery$raiseSight(RenderPassInfo<GeoRenderState> renderPassInfo, CallbackInfo ci) {
         SightAimPose.adjustRenderPose(renderPassInfo);
     }
 
-    @Inject(method = "handleAttachmentRendering", at = @At("HEAD"))
+    @Inject(method = "handleAttachmentRendering", at = @At("HEAD"), require = 0)
     private void artifice_heavy_artillery$renderTripod(RenderPassInfo<GeoRenderState> renderPassInfo, SubmitNodeCollector renderTasks, CallbackInfo ci) {
         PortableTripodRenderer.addToRenderPass(renderPassInfo);
     }
