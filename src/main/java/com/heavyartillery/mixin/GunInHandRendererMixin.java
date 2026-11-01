@@ -24,6 +24,8 @@ import software.bernie.geckolib.renderer.GeoItemRenderer;
  * <p>
  * Extends the renderer's superclass for its current stack and perspective.
  */
+// Cosmetic hooks (require = 0): if another mod reworks a target, only the effect is lost, not the game. Dev runs still
+// fail on a miss (mixin.debug.countInjections).
 @Mixin(GunInHandRenderer.class)
 public abstract class GunInHandRendererMixin extends GeoItemRenderer<GunItem> {
     /** This render's tripod, if the gun has one. */
@@ -34,7 +36,7 @@ public abstract class GunInHandRendererMixin extends GeoItemRenderer<GunItem> {
         super(model);
     }
 
-    @Inject(method = "preRender", at = @At("TAIL"))
+    @Inject(method = "preRender", at = @At("TAIL"), require = 0)
     private void artifice_heavy_artillery$preRender(PoseStack poseStack, GunItem animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource,
                                                     @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight,
                                                     int packedOverlay, int colour, CallbackInfo ci) {
@@ -45,7 +47,7 @@ public abstract class GunInHandRendererMixin extends GeoItemRenderer<GunItem> {
         SightAimPose.adjustRenderPose(poseStack, model, this.currentItemStack, this.renderPerspective, partialTick);
     }
 
-    @Inject(method = "handleAttachmentRendering", at = @At("HEAD"))
+    @Inject(method = "handleAttachmentRendering", at = @At("HEAD"), require = 0)
     private void artifice_heavy_artillery$renderTripod(PoseStack poseStack, GeoBone bone, MultiBufferSource bufferSource, float partialTick,
                                                        int packedLight, CallbackInfo ci) {
         if (this.artifice_heavy_artillery$tripod != null) {

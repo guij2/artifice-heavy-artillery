@@ -14,9 +14,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Heavy weapons are rifles to the parent mod, which registers its rifle arm pose for every gun (registering our own
  * would clash), so the third-person carry pose takes over from inside that pose.
  */
+// Cosmetic hooks (require = 0): if another mod reworks a target, only the effect is lost, not the game. Dev runs still
+// fail on a miss (mixin.debug.countInjections).
 @Mixin(GunArmPoses.class)
 public abstract class GunArmPosesMixin {
-    @Inject(method = "applyRiflePose", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "applyRiflePose", at = @At("HEAD"), cancellable = true, require = 0)
     private static void artifice_heavy_artillery$heavyCarryPose(HumanoidModel<?> model, LivingEntity entity, HumanoidArm arm, CallbackInfo ci) {
         if (HeavyArmPoses.apply(model, entity, arm)) {
             ci.cancel();

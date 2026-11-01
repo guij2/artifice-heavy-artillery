@@ -83,6 +83,8 @@ neoForge {
 
         configureEach {
             systemProperty 'forge.logging.markers', 'REGISTRIES'
+            // Optional (require = 0) mixin hooks still fail loudly here, so a missed one shows up in testing
+            systemProperty 'mixin.debug.countInjections', 'true'
             logLevel = org.slf4j.event.Level.DEBUG
         }
     }

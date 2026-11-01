@@ -17,11 +17,14 @@ import org.spongepowered.asm.mixin.injection.At;
  * <p>
  * The capacity shown is the one after {@link MagazineSize} (a Drum Magazine).
  */
+// Cosmetic hooks (require = 0): if another mod reworks a target, only the effect is lost, not the game. Dev runs still
+// fail on a miss (mixin.debug.countInjections).
 @Mixin(AmmoCountHudOverlay.class)
 public abstract class AmmoCountHudOverlayMixin {
     @WrapOperation(
             method = "render",
-            at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/item/GunplayManager;countBullets(Lnet/minecraft/world/entity/player/Player;)I")
+            at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/item/GunplayManager;countBullets(Lnet/minecraft/world/entity/player/Player;)I"),
+            require = 0
     )
     private static int artifice_heavy_artillery$reserveInRounds(Player player, Operation<Integer> original) {
         int carried = original.call(player);
@@ -31,7 +34,8 @@ public abstract class AmmoCountHudOverlayMixin {
 
     @ModifyExpressionValue(
             method = "render",
-            at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/item/GunItem;magazineCapacity()I")
+            at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/item/GunItem;magazineCapacity()I"),
+            require = 0
     )
     private static int artifice_heavy_artillery$capacity(int base) {
         Player player = Minecraft.getInstance().player;

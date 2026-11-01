@@ -12,9 +12,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /**
  * A raised reflex sight's reticle replaces the parent's gun crosshair (see {@link SightClient#renderReticle}).
  */
+// Cosmetic hooks (require = 0): if another mod reworks a target, only the effect is lost, not the game. Dev runs still
+// fail on a miss (mixin.debug.countInjections).
 @Mixin(CrosshairRenderer.class)
 public abstract class CrosshairRendererMixin {
-    @Inject(method = "renderGunCrosshair", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "renderGunCrosshair", at = @At("HEAD"), cancellable = true, require = 0)
     private static void artifice_heavy_artillery$sightReticle(GuiGraphics graphics, DeltaTracker deltaTracker, CallbackInfoReturnable<Boolean> cir) {
         if (SightClient.renderReticle(graphics, deltaTracker.getGameTimeDeltaPartialTick(false))) {
             cir.setReturnValue(true);
