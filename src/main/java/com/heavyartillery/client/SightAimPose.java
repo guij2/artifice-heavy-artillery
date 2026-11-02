@@ -1,9 +1,9 @@
 package com.heavyartillery.client;
 
 import com.heavyartillery.weapon.trait.SightAim;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.redspace.irons_artifice.api.GunBones;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -59,11 +59,12 @@ public final class SightAimPose {
         }
         PoseStack.Pose last = poseStack.last();
         Matrix4f pose = last.pose();
-        // the hand's pose stack is camera-centred but world-aligned (vanilla folds the inverse view rotation into it), so
-        // work in view space, where the eye looks down -Z
-        Quaternionf toWorld = new Quaternionf(Minecraft.getInstance().gameRenderer.getMainCamera().rotation());
-        Quaternionf toView = toWorld.conjugate(new Quaternionf());
-        Matrix4f view = new Matrix4f().rotation(toView).mul(pose);
+        // work in view space, where the eye looks down -Z: the model-view matrix times the pose. Vanilla puts the camera's
+        // rotation in the model-view matrix and its inverse in the pose; shader packs (Iris) leave both out, so neither
+        // can be assumed
+        Matrix4f toView = new Matrix4f(RenderSystem.getModelViewStack());
+        Matrix4f toPose = toView.invert(new Matrix4f());
+        Matrix4f view = new Matrix4f(toView).mul(pose);
         Vector3f eye = view.transformPosition(reticle, new Vector3f());
         // the turn that levels the gun: its forward (model -Z) to straight ahead, then its up (model +Y) to straight up
         Vector3f forward = view.transformDirection(0, 0, -1, new Vector3f()).normalize();
@@ -74,9 +75,9 @@ public final class SightAimPose {
 
         Quaternionf turn = new Quaternionf().slerp(level, raised);
         Vector3f at = new Vector3f(eye).lerp(new Vector3f(0, 0, -EYE_RELIEF), raised);
-        Matrix4f correction = new Matrix4f().rotation(toWorld).translate(at).rotate(turn).translate(-eye.x, -eye.y, -eye.z).rotate(toView);
+        Matrix4f correction = new Matrix4f(toPose).translate(at).rotate(turn).translate(-eye.x, -eye.y, -eye.z).mul(toView);
         pose.mulLocal(correction);
-        last.normal().mulLocal(new Matrix3f().rotation(toWorld).rotate(turn).rotate(toView));
+        last.normal().mulLocal(toPose.normal(new Matrix3f()).rotate(turn).mul(toView.normal(new Matrix3f())));
     }
 
     /** The point to centre on screen, in the gun model's blocks: the sight's window, else just above the muzzle. */
