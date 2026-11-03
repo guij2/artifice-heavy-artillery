@@ -1,5 +1,6 @@
 package com.heavyartillery.mixin;
 
+import com.heavyartillery.weapon.HeavyGunItem;
 import com.heavyartillery.weapon.trait.MagazineSize;
 import com.heavyartillery.weapon.trait.ReserveAmmo;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -15,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 /**
  * Routes Iron's Arms 'n Artifice's reload ammo accounting through {@link ReserveAmmo}, so
- * {@code HeavyShotComponents.RESERVE_AMMO_COST} decides how many carried bullets a reload uses, and its magazine
- * capacity reads through {@link MagazineSize}.
+ * {@code HeavyShotComponents.RESERVE_AMMO_COST} decides how many carried bullets a reload uses, its magazine
+ * capacity reads through {@link MagazineSize}, and its reload time through {@link HeavyGunItem#reloadTime}.
  */
 @Mixin(GunplayManager.class)
 public abstract class GunplayManagerMixin {
@@ -59,5 +60,13 @@ public abstract class GunplayManagerMixin {
     )
     private static int artifice_heavy_artillery$fireCapacity(int base, @Local(argsOnly = true) ShotProfile profile) {
         return MagazineSize.capacity(profile, base);
+    }
+
+    @ModifyExpressionValue(
+            method = "attemptStartReload",
+            at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/gun/GunProfile;reloadTimeTicks()I")
+    )
+    private static int artifice_heavy_artillery$reloadTime(int base, @Local(argsOnly = true) ItemStack gun) {
+        return HeavyGunItem.reloadTime(gun, base);
     }
 }

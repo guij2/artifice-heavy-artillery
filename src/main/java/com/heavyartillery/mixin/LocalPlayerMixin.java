@@ -1,6 +1,9 @@
 package com.heavyartillery.mixin;
 
+import com.heavyartillery.HAConfig;
+import com.heavyartillery.weapon.trait.SightAim;
 import com.heavyartillery.weapon.trait.SprintLock;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,5 +19,14 @@ public abstract class LocalPlayerMixin {
         if (SprintLock.isSprintLocked((LocalPlayer) (Object) this)) {
             cir.setReturnValue(false);
         }
+    }
+
+    /**
+     * Aiming down a reflex sight walks at the configured speed. The sight's use_effects component has a speed too, but
+     * it is set when the sight is fitted, so it would miss later config changes.
+     */
+    @ModifyReturnValue(method = "itemUseSpeedMultiplier", at = @At("RETURN"), require = 0)
+    private float artifice_heavy_artillery$aimedSpeed(float speed) {
+        return SightAim.isAiming((LocalPlayer) (Object) this) ? HAConfig.get(HAConfig.SIGHT_AIMED_SPEED).floatValue() : speed;
     }
 }

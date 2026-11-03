@@ -1,12 +1,12 @@
 package com.heavyartillery.modifier;
 
+import com.heavyartillery.HAConfig;
 import com.heavyartillery.HeavyArtillery;
 import com.heavyartillery.weapon.HeavyShotComponents;
 import com.heavyartillery.weapon.trait.TripodMount;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.item.AttachmentMap;
-import io.redspace.irons_artifice.modifier.ValueStackModifier;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentPatch;
@@ -22,14 +22,11 @@ import java.util.function.Consumer;
  * gun it is fitted to, and unfolds onto the ground when mounted ({@code client.PortableTripodRenderer}). A gun has one
  * tripod however many are fitted: only the first one counts.
  */
-public final class PortableTripodModifier extends ValueStackModifier {
-    public static final double SPREAD_REDUCTION = 0.75;
-    public static final double RECOIL_REDUCTION = 0.75;
-
+public final class PortableTripodModifier extends ConfiguredModifier {
     public PortableTripodModifier() {
-        super(Map.of(
-                HeavyShotComponents.MOUNTED_SPREAD_REDUCTION, new ValueModifier(SPREAD_REDUCTION, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL),
-                HeavyShotComponents.MOUNTED_RECOIL_REDUCTION, new ValueModifier(RECOIL_REDUCTION, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL)
+        super(() -> Map.of(
+                HeavyShotComponents.MOUNTED_SPREAD_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.TRIPOD_SPREAD_REDUCTION), ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL),
+                HeavyShotComponents.MOUNTED_RECOIL_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.TRIPOD_RECOIL_REDUCTION), ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL)
         ));
     }
 

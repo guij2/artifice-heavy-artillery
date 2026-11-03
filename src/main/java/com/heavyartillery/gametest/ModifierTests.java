@@ -1,5 +1,6 @@
 package com.heavyartillery.gametest;
 
+import com.heavyartillery.HAConfig;
 import com.heavyartillery.HeavyArtillery;
 import com.heavyartillery.modifier.DrumMagazineModifier;
 import com.heavyartillery.modifier.PowderRamModifier;
@@ -7,12 +8,10 @@ import com.heavyartillery.modifier.RifledBarrelModifier;
 import com.heavyartillery.registry.HAAttachments;
 import com.heavyartillery.registry.HAItems;
 import com.heavyartillery.weapon.HeavyShotComponents;
-import com.heavyartillery.weapon.trait.PowderRam;
 import com.heavyartillery.weapon.trait.Rifling;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.entity.Bullet;
-import io.redspace.irons_artifice.gun.Guns;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
@@ -64,7 +63,7 @@ final class ModifierTests {
     static void drumsSlowReloadAndStack(GameTestHelper helper) {
         ItemStack one = gunWith(HAItems.GUNSTEEL_GATLING.get(), HAItems.DRUM_MAGAZINE.get());
         ItemStack two = gunWith(HAItems.GUNSTEEL_GATLING.get(), HAItems.DRUM_MAGAZINE.get(), HAItems.DRUM_MAGAZINE.get());
-        double slower = 1 - DrumMagazineModifier.RELOAD_PENALTY;
+        double slower = 1 - HAConfig.get(HAConfig.DRUM_RELOAD_PENALTY);
         assertNear(helper, compose(null, one).value(ShotComponents.RELOAD_SPEED_MULTIPLIER), slower, "reload speed");
         assertNear(helper, compose(null, two).value(ShotComponents.RELOAD_SPEED_MULTIPLIER), slower * slower, "reload speed with two drums");
         helper.assertValueEqual(reloadFully(helper, two), 135, "two drums: 60 x 1.5 x 1.5");
@@ -94,7 +93,7 @@ final class ModifierTests {
     static void riflingCapsAndStacks(GameTestHelper helper) {
         ShotProfile one = compose(null, gunWith(ItemRegistry.MUSKET.get(), HAItems.RIFLED_BARREL.get()));
         ShotProfile two = compose(null, gunWith(ItemRegistry.MUSKET.get(), HAItems.RIFLED_BARREL.get(), HAItems.RIFLED_BARREL.get()));
-        assertNear(helper, two.value(HeavyShotComponents.RIFLING), 2 * RifledBarrelModifier.DAMAGE_PER_BLOCK, "rifling with two barrels");
+        assertNear(helper, two.value(HeavyShotComponents.RIFLING), 2 * HAConfig.get(HAConfig.RIFLED_DAMAGE_PER_BLOCK), "rifling with two barrels");
         double slower = one.value(ShotComponents.RELOAD_SPEED_MULTIPLIER);
         assertNear(helper, two.value(ShotComponents.RELOAD_SPEED_MULTIPLIER), slower * slower, "reload with two barrels");
         Bullet bullet = new Bullet(EntityRegistry.BULLET.get(), helper.getLevel());
@@ -118,12 +117,18 @@ final class ModifierTests {
         long now = helper.getLevel().getGameTime();
         player.setData(HAAttachments.LAST_SHOT, now);
         assertNear(helper, compose(player, player.getMainHandItem()).value(ShotComponents.DAMAGE), base, "just fired: no bonus");
-        player.setData(HAAttachments.LAST_SHOT, now - PowderRam.CHARGE_TICKS / 2);
+        int chargeTicks = HAConfig.get(HAConfig.POWDER_RAM_CHARGE_TICKS);
+        player.setData(HAAttachments.LAST_SHOT, now - chargeTicks / 2);
         assertNear(helper, compose(player, player.getMainHandItem()).value(ShotComponents.DAMAGE), base * 1.25, "half charged");
         player.setData(HAAttachments.LAST_SHOT, now - 200);
         assertNear(helper, compose(player, player.getMainHandItem()).value(ShotComponents.DAMAGE), base * 1.5, "long after: fully charged");
         Player twoRams = holding(helper, gunWith(ItemRegistry.MUSKET.get(), HAItems.POWDER_RAM.get(), HAItems.POWDER_RAM.get()));
         assertNear(helper, compose(twoRams, twoRams.getMainHandItem()).value(ShotComponents.DAMAGE), base * 2, "two rams stack");
+        twoRams.setData(HAAttachments.LAST_SHOT, now - chargeTicks);
+        assertNear(helper, compose(twoRams, twoRams.getMainHandItem()).value(ShotComponents.DAMAGE), base * 1.5,
+                "two rams take twice as long to charge: half way after one ram's charge time");
+        twoRams.setData(HAAttachments.LAST_SHOT, now - 2L * chargeTicks);
+        assertNear(helper, compose(twoRams, twoRams.getMainHandItem()).value(ShotComponents.DAMAGE), base * 2, "and fully charged after two");
         helper.succeed();
     }
 

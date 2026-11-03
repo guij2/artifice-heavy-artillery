@@ -11,6 +11,7 @@ import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import org.slf4j.Logger;
 
 @Mod(HeavyArtillery.MODID)
@@ -24,6 +25,7 @@ public final class HeavyArtillery {
         HAIngredientTypes.register(modEventBus);
         HAAttachments.register(modEventBus);
         HACreativeTabs.register(modEventBus);
+        modContainer.registerConfig(ModConfig.Type.SERVER, HAConfig.SPEC);
         HAGameTests.register(modEventBus);
     }
 

@@ -8,6 +8,7 @@ import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -25,11 +26,12 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.EventHooks;
 
 /**
- * Molten shots ({@link HeavyShotComponents#MOLTEN}) and setting blocks alight
- * ({@link HeavyShotComponents#IGNITE_BLOCK_CHANCE}).
+ * Molten shots ({@link HeavyShotComponents#MOLTEN}).
  * <p>
  * A molten shot is still the parent mod's bullet, so damage, modifiers and on-hit effects all apply as usual; only its
- * block impact changes (see {@code BulletMixin}): a splash of slag and a sizzle instead of chipped stone.
+ * block impact changes (see {@code BulletMixin}): a splash of slag and a sizzle instead of chipped stone. It never
+ * breaks blocks. With terrain damage enabled (the parent's Breaching Shell) it sets fire to every burnable block it
+ * hits instead.
  */
 @EventBusSubscriber(modid = HeavyArtillery.MODID)
 public final class MoltenShot {
@@ -42,21 +44,29 @@ public final class MoltenShot {
         if (event.isCanceled() || !(event.getRayTraceResult() instanceof BlockHitResult hit) || !(bullet.level() instanceof ServerLevel level)) {
             return;
         }
-        double chance = bullet.getProfile().value(HeavyShotComponents.IGNITE_BLOCK_CHANCE);
-        if (chance > 0 && bullet.getRandom().nextDouble() < chance) {
-            ignite(level, bullet.getOwner(), hit);
+        ShotProfile profile = bullet.getProfile();
+        if (profile.peek(HeavyShotComponents.MOLTEN) && profile.peek(ShotComponents.BREAKS_BLOCKS)) {
+            burn(level, bullet.getOwner(), hit);
         }
     }
 
-    /** Sets fire to the block side, the way a fire charge does. */
-    private static void ignite(ServerLevel level, Entity owner, BlockHitResult hit) {
-        BlockPos pos = hit.getBlockPos().relative(hit.getDirection());
-        if (owner instanceof Mob && !EventHooks.canEntityGrief(level, owner)
+    /** Sets fire to the side hit of a burnable block, the way a fire charge does. */
+    private static void burn(ServerLevel level, Entity owner, BlockHitResult hit) {
+        BlockPos block = hit.getBlockPos();
+        Direction side = hit.getDirection();
+        BlockPos pos = block.relative(side);
+        if (!level.getBlockState(block).isFlammable(level, block, side)
+                || owner instanceof Mob && !EventHooks.canEntityGrief(level, owner)
                 || owner instanceof Player player && (!player.mayBuild() || !level.mayInteract(player, pos))
-                || !level.isEmptyBlock(pos)) {
+                || !BaseFireBlock.canBePlacedAt(level, pos, side)) {
             return;
         }
         level.setBlockAndUpdate(pos, BaseFireBlock.getState(level, pos));
+    }
+
+    /** Whether a shot is molten, and so burns rather than breaks the blocks it hits ({@code BulletMixin}). */
+    public static boolean keepsBlocks(Bullet bullet) {
+        return bullet.getProfile().peek(HeavyShotComponents.MOLTEN);
     }
 
     /**

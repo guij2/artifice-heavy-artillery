@@ -35,9 +35,9 @@
   "artifice_heavy_artillery.component_type.aimed_recoil_reduction": "Aimed Recoil Reduction",
   "artifice_heavy_artillery.component_type.reserve_ammo_cost": "Reserve Ammo Cost",
   "artifice_heavy_artillery.component_type.molten": "Molten Shot",
-  "artifice_heavy_artillery.component_type.ignite_block_chance": "Block Ignite Chance",
   "artifice_heavy_artillery.component_type.airborne_blowback": "Airborne Blowback",
   "artifice_heavy_artillery.component_type.magazine_capacity": "Magazine Capacity",
   "artifice_heavy_artillery.component_type.rifling": "Rifling",
-  "artifice_heavy_artillery.component_type.powder_ram": "Powder Ram"
+  "artifice_heavy_artillery.component_type.powder_ram": "Powder Ram",
+  "artifice_heavy_artillery.component_type.powder_ram_charge": "Powder Ram Charge Time"
 }

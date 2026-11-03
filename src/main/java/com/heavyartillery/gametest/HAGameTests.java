@@ -48,7 +48,8 @@ public final class HAGameTests {
         TESTS.put("enchanted_magazine_recipe", EnchantedMagazineTests::recipeCraftsEnchantedMagazine);
         TESTS.put("crucible_spray_range_is_short", CrucibleTests::sprayRangeIsShort);
         TESTS.put("crucible_spray_burns_target", CrucibleTests::sprayBurnsTarget);
-        TESTS.put("crucible_spray_ignites_blocks", CrucibleTests::sprayIgnitesBlocks);
+        TESTS.put("crucible_spray_leaves_blocks_alone", CrucibleTests::sprayLeavesBlocksAlone);
+        TESTS.put("crucible_breaching_shell_burns_blocks", CrucibleTests::breachingShellBurnsBlocks);
         TESTS.put("crucible_spray_quenched_underwater", CrucibleTests::sprayIsQuenchedUnderwater);
         TESTS.put("crucible_tooltip_shows_spray_range", CrucibleTests::tooltipShowsSprayRange);
         TESTS.put("congreve_rocket_bursts_on_impact", CongreveTests::rocketBurstsOnImpact);
@@ -88,6 +89,12 @@ public final class HAGameTests {
         TESTS.put("powder_ram_charges_with_time", ModifierTests::powderRamChargesWithTime);
         TESTS.put("new_modifier_descriptions", ModifierTests::descriptions);
         TESTS.put("new_modifier_recipes", ModifierTests::recipes);
+        TESTS.put("config_gun_stats", ConfigTests::gunStatsFollowConfig);
+        TESTS.put("config_magazine_and_reload", ConfigTests::magazineAndReloadFollowConfig);
+        TESTS.put("config_movement_penalty", ConfigTests::movementPenaltyFollowsConfig);
+        TESTS.put("config_weapon_numbers", ConfigTests::weaponNumbersFollowConfig);
+        TESTS.put("config_modifier_numbers", ConfigTests::modifierNumbersFollowConfig);
+        TESTS.put("config_modifier_slots", ConfigTests::modifierSlotsFollowConfig);
     }
 
     /**

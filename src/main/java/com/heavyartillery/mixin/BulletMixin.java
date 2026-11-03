@@ -21,10 +21,11 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Molten shots splash and sizzle where they land instead of playing the parent's break sound and stone chips
- * (see {@link MoltenShot#blockImpact}). Block damage and on-hit effects are untouched.
+ * (see {@link MoltenShot#blockImpact}), and never damage blocks (they burn them instead). On-hit effects are untouched.
  * <p>
  * Also attaches a shot's {@link HeavyShotComponents#SHOT_MODEL} ({@link HAAttachments#SHOT_MODEL}, synced to clients), for
  * {@code client.ShotModelRenderer}.
@@ -67,6 +68,13 @@ public abstract class BulletMixin extends Projectile implements ShotModelHolder 
     private void artifice_heavy_artillery$moltenImpact(BlockHitResult hitResult, CallbackInfo ci) {
         if (MoltenShot.blockImpact((Bullet) (Object) this, hitResult)) {
             ci.cancel();
+        }
+    }
+
+    @Inject(method = "attemptApplyBlockDamage", at = @At("HEAD"), cancellable = true)
+    private void artifice_heavy_artillery$moltenKeepsBlocks(BlockHitResult hitResult, CallbackInfoReturnable<Boolean> cir) {
+        if (MoltenShot.keepsBlocks((Bullet) (Object) this)) {
+            cir.setReturnValue(false);
         }
     }
 
