@@ -17,7 +17,9 @@
     "BulletMixin",
     "CowboyHatItemMixin",
     "GunItemMixin",
+    "GunModifierMenuMixin",
     "GunplayManagerMixin",
+    "GunProfileMixin",
     "RecoilHelperMixin",
     "TricorneItemMixin"
   ]

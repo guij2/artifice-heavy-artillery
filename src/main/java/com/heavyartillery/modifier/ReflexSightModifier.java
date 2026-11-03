@@ -1,16 +1,17 @@
 package com.heavyartillery.modifier;
 
+import com.heavyartillery.HAConfig;
 import com.heavyartillery.weapon.HeavyShotComponents;
 import com.heavyartillery.weapon.trait.SightAim;
 import io.redspace.irons_artifice.api.GunBones;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.item.AttachmentMap;
-import io.redspace.irons_artifice.modifier.ValueStackModifier;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 import java.util.Map;
 import java.util.Optional;
@@ -21,16 +22,11 @@ import java.util.function.Consumer;
  * drop a little while aiming, and its holder walks slower and can't sprint. Like the parent's scope it fills the optic
  * socket, so a gun has one sight however many are fitted: only the first one counts. A gun with a scope as well scopes.
  */
-public final class ReflexSightModifier extends ValueStackModifier {
-    public static final double SPREAD_REDUCTION = 0.3;
-    public static final double RECOIL_REDUCTION = 0.3;
-    /** Walking speed while aiming (vanilla item use is 0.2, sneaking 0.3). */
-    public static final float AIMED_SPEED = 0.6f;
-
+public final class ReflexSightModifier extends ConfiguredModifier {
     public ReflexSightModifier() {
-        super(Map.of(
-                HeavyShotComponents.AIMED_SPREAD_REDUCTION, new ValueModifier(SPREAD_REDUCTION, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL),
-                HeavyShotComponents.AIMED_RECOIL_REDUCTION, new ValueModifier(RECOIL_REDUCTION, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL)
+        super(() -> Map.of(
+                HeavyShotComponents.AIMED_SPREAD_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.SIGHT_SPREAD_REDUCTION), ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL),
+                HeavyShotComponents.AIMED_RECOIL_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.SIGHT_RECOIL_REDUCTION), ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL)
         ));
     }
 
@@ -51,7 +47,8 @@ public final class ReflexSightModifier extends ValueStackModifier {
     public void getDescriptionText(Consumer<Component> builder) {
         builder.accept(Component.translatable("artifice_heavy_artillery.modifier.reflex_sight").withStyle(ChatFormatting.AQUA));
         builder.accept(Component.translatable("artifice_heavy_artillery.modifier.reflex_sight.aimed",
-                Math.round(SPREAD_REDUCTION * 100), Math.round(RECOIL_REDUCTION * 100)).withStyle(ChatFormatting.GREEN));
+                ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(HAConfig.get(HAConfig.SIGHT_SPREAD_REDUCTION) * 100),
+                ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(HAConfig.get(HAConfig.SIGHT_RECOIL_REDUCTION) * 100)).withStyle(ChatFormatting.GREEN));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.heavyartillery.gametest;
 
+import com.heavyartillery.HAConfig;
 import com.heavyartillery.HeavyArtillery;
 import com.heavyartillery.modifier.PortableTripodModifier;
 import com.heavyartillery.registry.HAItems;
@@ -47,9 +48,9 @@ final class TripodTests {
         ShotProfile mounted = compose(tripod);
         helper.assertTrue(crouched.value(ShotComponents.SPREAD) > 0, "the clockwork rifle has some spread to cut");
         assertNear(helper, mounted.value(ShotComponents.SPREAD),
-                crouched.value(ShotComponents.SPREAD) * (1 - PortableTripodModifier.SPREAD_REDUCTION), "spread while mounted");
+                crouched.value(ShotComponents.SPREAD) * (1 - HAConfig.get(HAConfig.TRIPOD_SPREAD_REDUCTION)), "spread while mounted");
         assertNear(helper, mounted.value(ShotComponents.CAMERA_RECOIL_MULTIPLIER),
-                crouched.value(ShotComponents.CAMERA_RECOIL_MULTIPLIER) * (1 - PortableTripodModifier.RECOIL_REDUCTION), "recoil while mounted");
+                crouched.value(ShotComponents.CAMERA_RECOIL_MULTIPLIER) * (1 - HAConfig.get(HAConfig.TRIPOD_RECOIL_REDUCTION)), "recoil while mounted");
         helper.succeed();
     }
 
@@ -84,7 +85,7 @@ final class TripodTests {
         Player tripod = holding(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), HAItems.PORTABLE_TRIPOD.get()));
         mount(tripod);
         assertNear(helper, compose(tripod).value(ShotComponents.SPREAD),
-                compose(plain).value(ShotComponents.SPREAD) * (1 - PortableTripodModifier.SPREAD_REDUCTION), "the tripod cuts the braced Gatling's spread further");
+                compose(plain).value(ShotComponents.SPREAD) * (1 - HAConfig.get(HAConfig.TRIPOD_SPREAD_REDUCTION)), "the tripod cuts the braced Gatling's spread further");
         helper.succeed();
     }
 
@@ -103,8 +104,8 @@ final class TripodTests {
         mount(one);
         Player two = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get(), HAItems.PORTABLE_TRIPOD.get(), HAItems.PORTABLE_TRIPOD.get()));
         mount(two);
-        assertNear(helper, compose(two).value(HeavyShotComponents.MOUNTED_SPREAD_REDUCTION), PortableTripodModifier.SPREAD_REDUCTION, "mounted spread reduction with two tripods");
-        assertNear(helper, compose(two).value(HeavyShotComponents.MOUNTED_RECOIL_REDUCTION), PortableTripodModifier.RECOIL_REDUCTION, "mounted recoil reduction with two tripods");
+        assertNear(helper, compose(two).value(HeavyShotComponents.MOUNTED_SPREAD_REDUCTION), HAConfig.get(HAConfig.TRIPOD_SPREAD_REDUCTION), "mounted spread reduction with two tripods");
+        assertNear(helper, compose(two).value(HeavyShotComponents.MOUNTED_RECOIL_REDUCTION), HAConfig.get(HAConfig.TRIPOD_RECOIL_REDUCTION), "mounted recoil reduction with two tripods");
         assertNear(helper, compose(two).value(ShotComponents.SPREAD), compose(one).value(ShotComponents.SPREAD), "spread with two tripods");
         assertNear(helper, compose(two).value(ShotComponents.CAMERA_RECOIL_MULTIPLIER), compose(one).value(ShotComponents.CAMERA_RECOIL_MULTIPLIER),
                 "recoil with two tripods");

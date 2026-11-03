@@ -15,7 +15,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 /**
  * Guns with {@link HeavyShotComponents#POWDER_RAM} hit harder the longer the shooter has held fire: the full bonus
- * after {@link #CHARGE_TICKS} without shooting, in proportion before that. The first shot ever counts as fully
+ * after {@link HeavyShotComponents#POWDER_RAM_CHARGE} ticks without shooting, in proportion before that. The first shot ever counts as fully
  * charged. The slow-firing mirror of the parent's Mechanical Accelerator, built the same way (a damage multiplier
  * added while composing the shot).
  * <p>
@@ -24,27 +24,26 @@ import net.neoforged.fml.common.EventBusSubscriber;
  */
 @EventBusSubscriber(modid = HeavyArtillery.MODID)
 public final class PowderRam {
-    public static final int CHARGE_TICKS = 30;
-
     @SubscribeEvent
     static void onCompose(ComposeShotEvent event) {
         ShotProfile profile = event.getShotProfile();
-        double bonus = profile.value(HeavyShotComponents.POWDER_RAM) * charge(event.getEntity());
+        double bonus = profile.value(HeavyShotComponents.POWDER_RAM) * charge(event.getEntity(), profile.value(HeavyShotComponents.POWDER_RAM_CHARGE));
         if (bonus > 0) {
             profile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(bonus, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
         }
     }
 
     /**
-     * @return 0 right after a shot, 1 once {@link #CHARGE_TICKS} have passed
+     * @param chargeTicks ticks without shooting to charge fully
+     * @return 0 right after a shot, 1 once {@code chargeTicks} have passed
      */
-    public static double charge(LivingEntity entity) {
+    public static double charge(LivingEntity entity, double chargeTicks) {
         long last = entity.getData(HAAttachments.LAST_SHOT);
         if (last == Long.MIN_VALUE) {
             return 1;
         }
         long since = entity.level().getGameTime() - last;
-        return Math.clamp(since / (double) CHARGE_TICKS, 0, 1);
+        return chargeTicks <= 0 ? 1 : Math.clamp(since / chargeTicks, 0, 1);
     }
 
     // lowest priority, not receiving cancelled events: only count shots that really go off

@@ -1,5 +1,6 @@
 package com.heavyartillery.gametest;
 
+import com.heavyartillery.HAConfig;
 import com.heavyartillery.HeavyArtillery;
 import com.heavyartillery.registry.HAItems;
 import com.heavyartillery.weapon.HeavyShotComponents;
@@ -80,10 +81,10 @@ final class CongreveTests {
 
     static void tooFewBulletsForARocket(GameTestHelper helper) {
         Player player = survivalPlayer(helper, gunWith(0));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), HeavyWeapons.CONGREVE_BULLETS_PER_ROCKET - 1));
+        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), HAConfig.get(HAConfig.CONGREVE_BULLETS_PER_ROCKET) - 1));
         ItemStack gun = player.getMainHandItem();
         helper.assertValueEqual(GunplayManager.attemptStartReload(player, gun), ReloadResult.NO_AMMO, "seven bullets don't make a rocket");
-        helper.assertValueEqual(GunplayManager.countBullets(player), HeavyWeapons.CONGREVE_BULLETS_PER_ROCKET - 1, "and none are used");
+        helper.assertValueEqual(GunplayManager.countBullets(player), HAConfig.get(HAConfig.CONGREVE_BULLETS_PER_ROCKET) - 1, "and none are used");
         helper.succeed();
     }
 

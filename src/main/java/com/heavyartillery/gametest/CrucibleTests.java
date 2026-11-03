@@ -1,15 +1,15 @@
 package com.heavyartillery.gametest;
 
 import com.heavyartillery.registry.HAItems;
-import com.heavyartillery.weapon.HeavyShotComponents;
 import com.heavyartillery.weapon.HeavyWeapons;
 import com.heavyartillery.weapon.trait.MoltenShot;
 import io.redspace.irons_artifice.data.ShotComponents;
-import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunplayManager;
+import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.registry.EntityRegistry;
+import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
@@ -48,14 +48,42 @@ final class CrucibleTests {
         });
     }
 
-    static void sprayIgnitesBlocks(GameTestHelper helper) {
-        BlockPos floor = new BlockPos(1, 2, 1);
-        helper.setBlock(floor, Blocks.STONE);
-        ShotProfile shot = crucibleShot();
-        shot.modifyValue(HeavyShotComponents.IGNITE_BLOCK_CHANCE, new ValueModifier(1, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL));
-        Vec3 top = helper.absoluteVec(Vec3.atCenterOf(floor)).add(0, 0.5, 0);
-        fire(helper, shot, top.add(0, 2, 0), top);
-        helper.succeedWhen(() -> helper.assertBlockPresent(Blocks.FIRE, floor.above()));
+    static void sprayLeavesBlocksAlone(GameTestHelper helper) {
+        BlockPos planks = new BlockPos(1, 2, 1);
+        BlockPos glass = new BlockPos(3, 2, 1);
+        helper.setBlock(planks, Blocks.OAK_PLANKS);
+        helper.setBlock(glass, Blocks.GLASS);
+        sprayDown(helper, crucibleShot(), planks);
+        sprayDown(helper, crucibleShot(), glass);
+        helper.runAfterDelay(10, () -> {
+            helper.assertBlockNotPresent(Blocks.FIRE, planks.above());
+            helper.assertBlockPresent(Blocks.OAK_PLANKS, planks);
+            helper.assertBlockPresent(Blocks.GLASS, glass);
+            helper.succeed();
+        });
+    }
+
+    static void breachingShellBurnsBlocks(GameTestHelper helper) {
+        BlockPos planks = new BlockPos(1, 2, 1);
+        BlockPos stone = new BlockPos(3, 2, 1);
+        BlockPos glass = new BlockPos(5, 2, 1);
+        helper.setBlock(planks, Blocks.OAK_PLANKS);
+        helper.setBlock(stone, Blocks.STONE);
+        helper.setBlock(glass, Blocks.GLASS);
+        ShotProfile shot = crucibleShot(ItemRegistry.BREACHING_SHELL.get());
+        helper.assertTrue(shot.peek(ShotComponents.BREAKS_BLOCKS), "the Breaching Shell enables terrain damage");
+        sprayDown(helper, shot, planks);
+        sprayDown(helper, shot, stone);
+        sprayDown(helper, shot, glass);
+        helper.runAfterDelay(10, () -> {
+            helper.assertBlockPresent(Blocks.FIRE, planks.above());
+            helper.assertBlockPresent(Blocks.OAK_PLANKS, planks);
+            helper.assertBlockNotPresent(Blocks.FIRE, stone.above());
+            helper.assertBlockPresent(Blocks.STONE, stone);
+            helper.assertBlockNotPresent(Blocks.FIRE, glass.above());
+            helper.assertBlockPresent(Blocks.GLASS, glass);
+            helper.succeed();
+        });
     }
 
     static void sprayIsQuenchedUnderwater(GameTestHelper helper) {
@@ -82,8 +110,19 @@ final class CrucibleTests {
         helper.succeed();
     }
 
-    private static ShotProfile crucibleShot() {
-        return GunplayManager.compose(null, HeavyWeapons.GUNSTEEL_CRUCIBLE, new ItemStack(HAItems.GUNSTEEL_CRUCIBLE.get()));
+    private static ShotProfile crucibleShot(Item... modifiers) {
+        GunContainer gun = new GunContainer(new ItemStack(HAItems.GUNSTEEL_CRUCIBLE.get()));
+        for (int slot = 0; slot < modifiers.length; slot++) {
+            gun.setItem(slot, new ItemStack(modifiers[slot]));
+        }
+        gun.setChanged();
+        return GunplayManager.compose(null, HeavyWeapons.GUNSTEEL_CRUCIBLE, gun.getGunStack());
+    }
+
+    /** One glob straight down onto the top of a block. */
+    private static void sprayDown(GameTestHelper helper, ShotProfile shot, BlockPos block) {
+        Vec3 top = helper.absoluteVec(Vec3.atCenterOf(block)).add(0, 0.5, 0);
+        fire(helper, shot, top.add(0, 2, 0), top);
     }
 
     /** One glob, the way GunplayManager fires them, aimed exactly (absolute positions). */

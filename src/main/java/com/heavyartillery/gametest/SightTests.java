@@ -1,5 +1,6 @@
 package com.heavyartillery.gametest;
 
+import com.heavyartillery.HAConfig;
 import com.heavyartillery.HeavyArtillery;
 import com.heavyartillery.modifier.ReflexSightModifier;
 import com.heavyartillery.registry.HAItems;
@@ -14,7 +15,6 @@ import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.irons_artifice.registry.ItemRegistry;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -63,9 +63,9 @@ final class SightTests {
         ShotProfile hip = compose(plain);
         ShotProfile aimed = compose(sighted);
         helper.assertTrue(hip.value(ShotComponents.SPREAD) > 0, "the clockwork rifle has some spread to cut");
-        assertNear(helper, aimed.value(ShotComponents.SPREAD), hip.value(ShotComponents.SPREAD) * (1 - ReflexSightModifier.SPREAD_REDUCTION), "spread while aiming");
+        assertNear(helper, aimed.value(ShotComponents.SPREAD), hip.value(ShotComponents.SPREAD) * (1 - HAConfig.get(HAConfig.SIGHT_SPREAD_REDUCTION)), "spread while aiming");
         assertNear(helper, aimed.value(ShotComponents.CAMERA_RECOIL_MULTIPLIER),
-                hip.value(ShotComponents.CAMERA_RECOIL_MULTIPLIER) * (1 - ReflexSightModifier.RECOIL_REDUCTION), "recoil while aiming");
+                hip.value(ShotComponents.CAMERA_RECOIL_MULTIPLIER) * (1 - HAConfig.get(HAConfig.SIGHT_RECOIL_REDUCTION)), "recoil while aiming");
         helper.succeed();
     }
 
@@ -83,7 +83,7 @@ final class SightTests {
         Player two = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get(), HAItems.REFLEX_SIGHT.get(), HAItems.REFLEX_SIGHT.get()));
         aim(one);
         aim(two);
-        assertNear(helper, compose(two).value(HeavyShotComponents.AIMED_SPREAD_REDUCTION), ReflexSightModifier.SPREAD_REDUCTION, "aimed spread reduction with two sights");
+        assertNear(helper, compose(two).value(HeavyShotComponents.AIMED_SPREAD_REDUCTION), HAConfig.get(HAConfig.SIGHT_SPREAD_REDUCTION), "aimed spread reduction with two sights");
         assertNear(helper, compose(two).value(ShotComponents.SPREAD), compose(one).value(ShotComponents.SPREAD), "spread with two sights");
         assertNear(helper, compose(two).value(ShotComponents.CAMERA_RECOIL_MULTIPLIER), compose(one).value(ShotComponents.CAMERA_RECOIL_MULTIPLIER),
                 "recoil with two sights");

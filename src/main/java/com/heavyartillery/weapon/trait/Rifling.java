@@ -1,5 +1,6 @@
 package com.heavyartillery.weapon.trait;
 
+import com.heavyartillery.HAConfig;
 import com.heavyartillery.weapon.HeavyShotComponents;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.ShotProfile;
@@ -8,14 +9,17 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Shots with {@link HeavyShotComponents#RIFLING} hit harder the further they have flown: the bonus per block times
- * the straight-line distance from where the shot was fired to where it hits, counting at most {@link #MAX_DISTANCE}
+ * the straight-line distance from where the shot was fired to where it hits, counting at most {@link #maxDistance()}
  * blocks (so stacked barrels raise the bonus at every range, not only how fast it builds).
  * <p>
  * Applied to {@code Bullet.resolveDamage} ({@code BulletMixin}), so whatever reads the shot's damage when it lands
  * sees it too: the hit itself, a Blackpowder Charge burst, chain lightning, frozen shrapnel.
  */
 public final class Rifling {
-    public static final double MAX_DISTANCE = 30;
+    /** Blocks of flight that count towards the bonus, from the config. */
+    public static int maxDistance() {
+        return HAConfig.get(HAConfig.RIFLED_MAX_DISTANCE);
+    }
 
     /**
      * @param origin where the shot was fired from, or null if not known
@@ -30,7 +34,7 @@ public final class Rifling {
         if (perBlock <= 0) {
             return damage;
         }
-        return (float) (damage * (1 + perBlock * Math.min(MAX_DISTANCE, origin.distanceTo(impact))));
+        return (float) (damage * (1 + perBlock * Math.min(maxDistance(), origin.distanceTo(impact))));
     }
 
     private Rifling() {

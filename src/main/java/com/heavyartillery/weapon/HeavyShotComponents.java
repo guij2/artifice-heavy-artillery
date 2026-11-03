@@ -105,11 +105,6 @@ public final class HeavyShotComponents {
      * shows how far the spray reaches. Pair it with a slow, high-drag shot.
      */
     public static final ComponentType<Boolean> MOLTEN = new ComponentType<>(HeavyArtillery.id("molten"), () -> false);
-    /**
-     * Chance, 0..1, that a shot sets fire to the block side it hits (like a fire charge; mobs need mob griefing). Works on
-     * any gun. Increase is BENEFICIAL.
-     */
-    public static final ComponentType<Value> IGNITE_BLOCK_CHANCE = new ComponentType<>(HeavyArtillery.id("ignite_block_chance"), () -> Value.of(0));
 
     /* **********************************
      * Rockets (see trait.Blowback, client.ShotModelRenderer)
@@ -138,7 +133,7 @@ public final class HeavyShotComponents {
      * Rifling (see trait.Rifling)
      ********************************** */
     /**
-     * Damage bonus per block a shot has travelled when it hits, counting up to {@code trait.Rifling.MAX_DISTANCE}
+     * Damage bonus per block a shot has travelled when it hits, counting up to {@code trait.Rifling.maxDistance()}
      * blocks. Increase is BENEFICIAL.
      */
     public static final ComponentType<Value> RIFLING = new ComponentType<>(HeavyArtillery.id("rifling"), () -> Value.of(0));
@@ -147,10 +142,15 @@ public final class HeavyShotComponents {
      * Powder ram (see trait.PowderRam)
      ********************************** */
     /**
-     * Damage bonus a shot gets when the shooter has not fired for {@code trait.PowderRam.CHARGE_TICKS}; less after a
+     * Damage bonus a shot gets when the shooter has not fired for {@link #POWDER_RAM_CHARGE} ticks; less after a
      * shorter wait, in proportion. Increase is BENEFICIAL.
      */
     public static final ComponentType<Value> POWDER_RAM = new ComponentType<>(HeavyArtillery.id("powder_ram"), () -> Value.of(0));
+    /**
+     * Ticks without shooting for the full {@link #POWDER_RAM} bonus. Each Powder Ram adds its charge time, as it adds
+     * its bonus. Increase is HARMFUL.
+     */
+    public static final ComponentType<Value> POWDER_RAM_CHARGE = new ComponentType<>(HeavyArtillery.id("powder_ram_charge"), () -> Value.of(0));
 
     private HeavyShotComponents() {
     }

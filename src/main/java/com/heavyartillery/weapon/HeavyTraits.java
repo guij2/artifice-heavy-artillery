@@ -8,11 +8,10 @@ import org.jetbrains.annotations.Nullable;
  * Per-shot traits (spin-up, bracing, ...) belong in {@link HeavyShotComponents} instead, so modifiers can change them.
  * These live on the item because they are checked every tick, without composing a shot.
  *
- * @param movementSpeedPenalty    fraction of movement speed lost while held in the main hand, 0..1
  * @param sprintLockedWhileFiring whether the holder is stopped from sprinting while sustaining fire
  * @param hold                    how it is carried in third person, or null for the parent mod's rifle pose
  */
-public record HeavyTraits(double movementSpeedPenalty, boolean sprintLockedWhileFiring, @Nullable HeavyHold hold) {
+public record HeavyTraits(boolean sprintLockedWhileFiring, @Nullable HeavyHold hold) {
     public static final HeavyTraits NONE = builder().build();
 
     public static Builder builder() {
@@ -20,16 +19,10 @@ public record HeavyTraits(double movementSpeedPenalty, boolean sprintLockedWhile
     }
 
     public static final class Builder {
-        private double movementSpeedPenalty = 0;
         private boolean sprintLockedWhileFiring = false;
         private @Nullable HeavyHold hold = null;
 
         private Builder() {
-        }
-
-        public Builder movementSpeedPenalty(double movementSpeedPenalty) {
-            this.movementSpeedPenalty = movementSpeedPenalty;
-            return this;
         }
 
         public Builder sprintLockedWhileFiring() {
@@ -43,7 +36,7 @@ public record HeavyTraits(double movementSpeedPenalty, boolean sprintLockedWhile
         }
 
         public HeavyTraits build() {
-            return new HeavyTraits(movementSpeedPenalty, sprintLockedWhileFiring, hold);
+            return new HeavyTraits(sprintLockedWhileFiring, hold);
         }
     }
 }

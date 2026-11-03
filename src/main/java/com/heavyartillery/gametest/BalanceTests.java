@@ -28,7 +28,7 @@ final class BalanceTests {
     static void heavyGunsOutSlotParentGuns(GameTestHelper helper) {
         int parentMost = PARENT_GUNS.stream().mapToInt(GunProfile::modifierSlots).max().orElseThrow();
         for (GunProfile heavy : HEAVY_GUNS) {
-            helper.assertValueEqual(heavy.modifierSlots(), HeavyWeapons.MODIFIER_SLOTS, "heavy weapon slots");
+            helper.assertValueEqual(heavy.modifierSlots(), 8, "heavy weapon slots by default");
             helper.assertTrue(heavy.modifierSlots() > parentMost, "more slots than any parent gun (" + parentMost + ")");
         }
         helper.succeed();

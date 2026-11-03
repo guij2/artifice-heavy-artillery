@@ -1,6 +1,6 @@
 package com.heavyartillery.mixin;
 
-import com.heavyartillery.modifier.ReflexSightModifier;
+import com.heavyartillery.HAConfig;
 import com.heavyartillery.weapon.trait.SightAim;
 import com.heavyartillery.weapon.trait.SprintLock;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -23,11 +23,11 @@ public abstract class LocalPlayerMixin {
 
     /**
      * Using an item slows its user to 20% (1.21.1 has no use_effects component to change that): aiming down a reflex
-     * sight only to {@link ReflexSightModifier#AIMED_SPEED}. A @ModifyExpressionValue rather than a @ModifyConstant,
+     * sight only to the configured aimed speed. A @ModifyExpressionValue rather than a @ModifyConstant,
      * so other mods changing the same slowdown (Sinew does) still find their constants.
      */
     @ModifyExpressionValue(method = "aiStep", at = @At(value = "CONSTANT", args = "floatValue=0.2F"), require = 0)
     private float artifice_heavy_artillery$aimedSpeed(float slowdown) {
-        return SightAim.isAiming((LocalPlayer) (Object) this) ? ReflexSightModifier.AIMED_SPEED : slowdown;
+        return SightAim.isAiming((LocalPlayer) (Object) this) ? HAConfig.get(HAConfig.SIGHT_AIMED_SPEED).floatValue() : slowdown;
     }
 }

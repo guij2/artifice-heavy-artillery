@@ -1,5 +1,6 @@
 package com.heavyartillery.mixin;
 
+import com.heavyartillery.weapon.HeavyGunItem;
 import com.heavyartillery.weapon.trait.MagazineSize;
 import com.heavyartillery.weapon.trait.SightAim;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -19,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * The gun's tooltip (capacity, and whether to show fire rate) and its durability bar use the capacity after
- * {@link MagazineSize}. A gun with a reflex sight aims down it while use is held ({@link SightAim}).
+ * {@link MagazineSize}, and the tooltip the reload time from {@link HeavyGunItem#reloadTime}. A gun with a reflex sight aims down it while use is held ({@link SightAim}).
  */
 // The tooltip and bar hooks are cosmetic (require = 0): if another mod reworks them, only the number shown is off, not
 // the game. Dev runs still fail on a miss (mixin.debug.countInjections).
@@ -32,6 +33,15 @@ public abstract class GunItemMixin {
     )
     private int artifice_heavy_artillery$tooltipCapacity(int base, @Local(argsOnly = true) ItemStack stack) {
         return MagazineSize.capacity(stack, base);
+    }
+
+    @ModifyExpressionValue(
+            method = "appendHoverText",
+            at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/gun/GunProfile;reloadTimeTicks()I"),
+            require = 0
+    )
+    private int artifice_heavy_artillery$tooltipReloadTime(int base, @Local(argsOnly = true) ItemStack stack) {
+        return HeavyGunItem.reloadTime(stack, base);
     }
 
     @ModifyExpressionValue(

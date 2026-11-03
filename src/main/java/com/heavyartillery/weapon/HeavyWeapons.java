@@ -1,5 +1,6 @@
 package com.heavyartillery.weapon;
 
+import com.heavyartillery.HAConfig;
 import com.heavyartillery.HeavyArtillery;
 import com.heavyartillery.registry.HAParticles;
 import io.redspace.irons_artifice.client.sounds.GunShotSoundSettings;
@@ -13,8 +14,8 @@ import io.redspace.irons_artifice.data.PlayableSound;
 import io.redspace.irons_artifice.data.RecoilProfile;
 import io.redspace.irons_artifice.data.ReloadCue;
 import io.redspace.irons_artifice.data.ReloadCueStack;
-import io.redspace.irons_artifice.data.ShotComponentTemplate;
 import io.redspace.irons_artifice.data.ShotComponents;
+import io.redspace.irons_artifice.data.Value;
 import io.redspace.irons_artifice.gun.ArmPoseKind;
 import io.redspace.irons_artifice.gun.GunProfile;
 import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
@@ -34,25 +35,26 @@ import java.util.Optional;
  * {@code HAItems}, and add the GeckoLib model/animation/texture named after the item.
  * <p>
  * Balance: heavy weapons are late-game guns, meant to rival other mods' end-game weaponry (LTX Industries' Stargazer
- * and Nova) once filled with a good build, and to be weaker than those bare. So they get {@link #MODIFIER_SLOTS} slots
+ * and Nova) once filled with a good build, and to be weaker than those bare. So they get 8 modifier slots by default
  * (the parent's guns have 5 to 7), and a bare one roughly matches a fully modded gun of the parent's. README's Balance
  * section has the numbers.
+ * <p>
+ * The numbers modpacks may want to change (damage, spread, fire rate, capacity, reload time, movement penalty, modifier
+ * slots and each weapon's own) come from {@link HAConfig}, which holds their defaults; the rest are here.
  * <p>
  * Reload cue times are in seconds into the reload animation; fire cycle cue times are fractions (0..1) of the fire delay.
  */
 public final class HeavyWeapons {
-    public static final int MODIFIER_SLOTS = 8;
-
     /**
      * Gunsteel Gatling: hand-cranked Gatling gun. High fire rate once spun up, a big magazine and a slow reload. Slows the wielder and
      * rewards crouching to brace it.
      * <p>
      * Fire rate: 2 ticks between shots (10/s) at full spin; +6 ticks (2.5/s) from rest, reaching full speed over 10 shots.
      */
-    public static final GunProfile GUNSTEEL_GATLING = GunProfile.builder(60, MODIFIER_SLOTS, 60, FireMode.AUTO, ArmPoseKind.RIFLE,
-                    ShotComponentTemplate.builder(7, 3.5, 0.03, 2, RecoilProfile.of(4f, .6f, 0.9f, 1862))
-                            .value(HeavyShotComponents.SPIN_UP_DELAY, 6)
-                            .value(HeavyShotComponents.SPIN_UP_SHOTS, 10)
+    public static final GunProfile GUNSTEEL_GATLING = HAConfig.GATLING.profile(FireMode.AUTO, ArmPoseKind.RIFLE,
+                    HAConfig.GATLING.template(0.03, RecoilProfile.of(4f, .6f, 0.9f, 1862))
+                            .set(HeavyShotComponents.SPIN_UP_DELAY, HAConfig.live(HAConfig.GATLING_SPIN_UP_DELAY))
+                            .set(HeavyShotComponents.SPIN_UP_SHOTS, HAConfig.live(HAConfig.GATLING_SPIN_UP_SHOTS))
                             .value(HeavyShotComponents.BRACE_SPREAD_REDUCTION, 0.5)
                             .value(HeavyShotComponents.BRACE_RECOIL_REDUCTION, 0.4)
                             .gunshotSound(
@@ -76,7 +78,6 @@ public final class HeavyWeapons {
             .build();
 
     public static final HeavyTraits GUNSTEEL_GATLING_TRAITS = HeavyTraits.builder()
-            .movementSpeedPenalty(0.2)
             .sprintLockedWhileFiring()
             // left hand along the top carry handle (between its posts); on reload it turns the side crank (2.08-2.58s, as the animation does)
             .hold(new HeavyHold(new Vec3(0, 12, -10), new Vec3(0, 12, -4), new Vec3(0, 3.5, -32),
@@ -89,11 +90,12 @@ public final class HeavyWeapons {
      * <p>
      * Each shot is 3 slow, high-drag globs that pierce one target and set it alight; they stop after about 7 blocks. As
      * damage scales with speed (Bullet.resolveDamage: full at 2 blocks/tick and up), they hit at full strength within 2
-     * blocks and fade from there. 10 shots/s, 5 s of fire per load.
+     * blocks and fade from there. 10 shots/s, 5 s of fire per load. It leaves blocks alone, unless a Breaching Shell
+     * lets it set fire to the burnable ones it hits (trait.MoltenShot).
      */
-    public static final GunProfile GUNSTEEL_CRUCIBLE = GunProfile.builder(50, MODIFIER_SLOTS, 60, FireMode.AUTO, ArmPoseKind.RIFLE,
-                    ShotComponentTemplate.builder(7, 6, 0, 2, RecoilProfile.of(1.2f, .5f, 0.35f, 451))
-                            .projectileCount(3)
+    public static final GunProfile GUNSTEEL_CRUCIBLE = HAConfig.CRUCIBLE.profile(FireMode.AUTO, ArmPoseKind.RIFLE,
+                    HAConfig.CRUCIBLE.template(0, RecoilProfile.of(1.2f, .5f, 0.35f, 451))
+                            .set(ShotComponents.PROJECTILE_COUNT, HAConfig.live(HAConfig.CRUCIBLE_GLOBS))
                             .bulletSpeed(2.0)
                             .gravity(0.02)
                             .knockback(0)
@@ -102,10 +104,9 @@ public final class HeavyWeapons {
                             .value(ShotComponents.UNDERWATER_DRAG, 0.2)
                             .value(ShotComponents.PIERCING, 1)
                             .set(HeavyShotComponents.MOLTEN, () -> true)
-                            .value(HeavyShotComponents.IGNITE_BLOCK_CHANCE, 0.04)
                             .modify(map -> map.getOrCreate(ShotComponents.POST_HIT_EFFECTS)
                                     .getOrCreate(IgnitePostHit.class, () -> new IgnitePostHit(0))
-                                    .addDuration(3 * 20))
+                                    .addDuration(HAConfig.get(HAConfig.CRUCIBLE_BURN_SECONDS) * 20))
                             // the billows smoke as they cool (no trail accents: those spawn right at the user's eye)
                             .set(ShotComponents.PARTICLE_TRAIL, () -> {
                                 ParticleStack trail = new ParticleStack();
@@ -134,7 +135,6 @@ public final class HeavyWeapons {
             .build();
 
     public static final HeavyTraits GUNSTEEL_CRUCIBLE_TRAITS = HeavyTraits.builder()
-            .movementSpeedPenalty(0.15)
             .sprintLockedWhileFiring()
             // left hand on the wire-wrapped bar of the top handle; on reload it turns the valve wheel on the boiler's left
             .hold(new HeavyHold(new Vec3(0, 12.75, -9.5), new Vec3(0, 12.75, -5.5), new Vec3(0, 4.5, -37),
@@ -143,20 +143,20 @@ public final class HeavyWeapons {
 
     /**
      * Gunsteel Congreve: shoulder-fired war-rocket tube. One rocket at a time, muzzle-loaded; each is packed from
-     * {@link #CONGREVE_BULLETS_PER_ROCKET} bullets ({@link HeavyShotComponents#RESERVE_AMMO_COST}).
+     * several bullets ({@link HeavyShotComponents#RESERVE_AMMO_COST}, 8 by default).
      * <p>
      * The rocket is still the parent's bullet, so every modifier applies to it: it flies slower than a bullet (about
-     * 52 blocks/s) but drops less over the same distance (the motor keeps it up), and bursts on impact like a Blackpowder Charge with two stacks (radius 4; a
-     * Blackpowder Charge modifier widens it further, Breach lets it break blocks). The launch shoves the shooter back,
+     * 52 blocks/s) but drops less over the same distance (the motor keeps it up), and bursts on impact like a stacked
+     * Blackpowder Charge (radius 4 by default; a Blackpowder Charge modifier widens it further, Breach lets it break blocks). The launch shoves the shooter back,
      * more in the air, less braced, not at all on a tripod ({@code trait.Blowback}).
      * <p>
-     * A rocket hits for 80, and the burst deals the same, fading with distance, to
-     * everything else around. Block damage follows shot damage in the parent, so it is scaled down to keep Breach
-     * craters the size they were at 28 damage.
+     * A rocket hits for 80 by default, and the burst deals the same, fading with distance, to everything else around.
+     * Block damage follows shot damage in the parent, so it is scaled to {@link #CONGREVE_BLOCK_DAMAGE} whatever the
+     * configured damage, keeping Breach craters the size they were at 28 damage.
      */
-    public static final int CONGREVE_BULLETS_PER_ROCKET = 8;
-    public static final GunProfile GUNSTEEL_CONGREVE = GunProfile.builder(1, MODIFIER_SLOTS, 70, FireMode.SEMI, ArmPoseKind.RIFLE,
-                    ShotComponentTemplate.builder(80, 1.5, 0.9, 10, RecoilProfile.of(22f, .4f, 1.4f, 1823))
+    public static final double CONGREVE_BLOCK_DAMAGE = 30;
+    public static final GunProfile GUNSTEEL_CONGREVE = HAConfig.CONGREVE.profile(FireMode.SEMI, ArmPoseKind.RIFLE,
+                    HAConfig.CONGREVE.template(0.9, RecoilProfile.of(22f, .4f, 1.4f, 1823))
                             .bulletSpeed(2.6)
                             // drop per block flown goes as gravity / speed^2: to fall less than even a musket ball (0.05 a
                             // tick at 18 blocks a tick) at 2.6 blocks a tick, the rocket needs under 0.05 * (2.6 / 18)^2 = 0.00104
@@ -164,9 +164,9 @@ public final class HeavyWeapons {
                             .knockback(1.5)
                             // the motor keeps burning: barely slows
                             .value(ShotComponents.BULLET_DRAG, 0.995)
-                            .value(ShotComponents.BLOCK_DAMAGE_MULTIPLIER, 0.375)
+                            .set(ShotComponents.BLOCK_DAMAGE_MULTIPLIER, () -> Value.of(CONGREVE_BLOCK_DAMAGE / Math.max(1, HAConfig.get(HAConfig.CONGREVE.damage))))
                             .value(ShotComponents.UNDERWATER_DRAG, 0.9)
-                            .value(HeavyShotComponents.RESERVE_AMMO_COST, CONGREVE_BULLETS_PER_ROCKET)
+                            .set(HeavyShotComponents.RESERVE_AMMO_COST, HAConfig.live(HAConfig.CONGREVE_BULLETS_PER_ROCKET))
                             .value(HeavyShotComponents.AIRBORNE_BLOWBACK, 1.75)
                             .value(HeavyShotComponents.BRACE_SPREAD_REDUCTION, 0.5)
                             .value(HeavyShotComponents.BRACE_RECOIL_REDUCTION, 0.5)
@@ -174,8 +174,11 @@ public final class HeavyWeapons {
                             .modify(map -> {
                                 BlackpowderChargeOnHit warhead = map.getOrCreate(ShotComponents.ON_HIT)
                                         .getOrCreate(BlackpowderChargeOnHit.class, BlackpowderChargeOnHit::new);
-                                warhead.addStack();
-                                warhead.addStack();
+                                // the first stack bursts BASE_RADIUS wide, each further one RADIUS_PER_STACK wider
+                                double extra = HAConfig.get(HAConfig.CONGREVE_BLAST_RADIUS) - BlackpowderChargeOnHit.BASE_RADIUS;
+                                for (int i = 0; i <= Math.round(extra / BlackpowderChargeOnHit.RADIUS_PER_STACK); i++) {
+                                    warhead.addStack();
+                                }
                             })
                             // smoke behind it, with sparks from the motor
                             .set(ShotComponents.PARTICLE_TRAIL, () -> {
@@ -203,9 +206,7 @@ public final class HeavyWeapons {
             .build();
 
     /** Shouldered like a musket (the parent's rifle pose), so no heavy hold. */
-    public static final HeavyTraits GUNSTEEL_CONGREVE_TRAITS = HeavyTraits.builder()
-            .movementSpeedPenalty(0.15)
-            .build();
+    public static final HeavyTraits GUNSTEEL_CONGREVE_TRAITS = HeavyTraits.NONE;
 
     private HeavyWeapons() {
     }

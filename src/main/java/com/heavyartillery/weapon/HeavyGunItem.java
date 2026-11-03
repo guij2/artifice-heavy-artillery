@@ -1,7 +1,9 @@
 package com.heavyartillery.weapon;
 
-import com.heavyartillery.HeavyArtillery;
+import com.heavyartillery.HAConfig;
+import com.heavyartillery.weapon.trait.ModifierSlots;
 import com.heavyartillery.weapon.trait.MoltenShot;
+import com.heavyartillery.weapon.trait.MovementPenalty;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.gun.GunProfile;
 import io.redspace.irons_artifice.gun.ShotProfile;
@@ -10,9 +12,7 @@ import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.BlackpowderChargeOnHit;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -24,31 +24,36 @@ import java.util.List;
 
 /**
  * A {@link GunItem} with {@link HeavyTraits}. Everything gun-related (firing, reloading, modifiers, rendering) is
- * handled by Iron's Arms 'n Artifice; this class only adds the carried-weapon traits and a one-line tooltip.
+ * handled by Iron's Arms 'n Artifice; this class only adds the carried-weapon traits, the numbers from its
+ * {@link HAConfig} section the parent reads from the profile, and a one-line tooltip.
  */
 public class HeavyGunItem extends GunItem {
-    public static final ResourceLocation MOVEMENT_PENALTY_ID = HeavyArtillery.id("heavy_weapon_movement_penalty");
-
     private final HeavyTraits traits;
+    private final HAConfig.Weapon balance;
 
-    public HeavyGunItem(Properties properties, GunProfile gunProfile, HeavyTraits traits) {
-        super(applyTraits(properties, traits), gunProfile);
+    public HeavyGunItem(Properties properties, GunProfile gunProfile, HeavyTraits traits, HAConfig.Weapon balance) {
+        super(properties.attributes(ItemAttributeModifiers.builder()
+                .add(Attributes.MOVEMENT_SPEED, MovementPenalty.modifier(balance.movementPenalty.getDefault()), EquipmentSlotGroup.MAINHAND)
+                .build()), gunProfile);
         this.traits = traits;
-    }
-
-    private static Properties applyTraits(Properties properties, HeavyTraits traits) {
-        if (traits.movementSpeedPenalty() > 0) {
-            properties.attributes(ItemAttributeModifiers.builder()
-                    .add(Attributes.MOVEMENT_SPEED,
-                            new AttributeModifier(MOVEMENT_PENALTY_ID, -traits.movementSpeedPenalty(), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL),
-                            EquipmentSlotGroup.MAINHAND)
-                    .build());
-        }
-        return properties;
+        this.balance = balance;
+        ModifierSlots.register(gunProfile, balance.modifierSlots);
     }
 
     public HeavyTraits traits() {
         return traits;
+    }
+
+    public HAConfig.Weapon balance() {
+        return balance;
+    }
+
+    /**
+     * Reload time in ticks: the configured one for a heavy weapon. The parent reads it from the gun's profile, so the
+     * reload and the tooltip are routed here by mixins.
+     */
+    public static int reloadTime(ItemStack gun, int base) {
+        return gun.getItem() instanceof HeavyGunItem heavy ? HAConfig.get(heavy.balance.reloadTime) : base;
     }
 
     /**

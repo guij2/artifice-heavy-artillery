@@ -1,5 +1,6 @@
 package com.heavyartillery.registry;
 
+import com.heavyartillery.HAConfig;
 import com.heavyartillery.HeavyArtillery;
 import com.heavyartillery.modifier.DrumMagazineModifier;
 import com.heavyartillery.modifier.EnchantedMagazineModifier;
@@ -19,7 +20,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 /**
  * Every item in the mod.
  * <p>
- * Weapons: register a {@link HeavyGunItem} with a profile from {@link HeavyWeapons}. The item's registry name is used to
+ * Weapons: register a {@link HeavyGunItem} with a profile from {@link HeavyWeapons} and its {@link HAConfig} section. The item's registry name is used to
  * look up its GeckoLib assets ({@code geo/item/<name>.geo.json}, {@code animations/item/<name>.animation.json},
  * {@code textures/item/<name>.png}); Iron's Arms 'n Artifice wires up the renderer, arm poses and modifier menu automatically.
  * <p>
@@ -37,14 +38,14 @@ public final class HAItems {
      * Weapons
      ********************************** */
     public static final DeferredItem<HeavyGunItem> GUNSTEEL_GATLING = ITEMS.registerItem("gunsteel_gatling",
-            properties -> new HeavyGunItem(properties, HeavyWeapons.GUNSTEEL_GATLING, HeavyWeapons.GUNSTEEL_GATLING_TRAITS)
+            properties -> new HeavyGunItem(properties, HeavyWeapons.GUNSTEEL_GATLING, HeavyWeapons.GUNSTEEL_GATLING_TRAITS, HAConfig.GATLING)
     );
     public static final DeferredItem<HeavyGunItem> GUNSTEEL_CRUCIBLE = ITEMS.registerItem("gunsteel_crucible",
-            properties -> new HeavyGunItem(properties, HeavyWeapons.GUNSTEEL_CRUCIBLE, HeavyWeapons.GUNSTEEL_CRUCIBLE_TRAITS)
+            properties -> new HeavyGunItem(properties, HeavyWeapons.GUNSTEEL_CRUCIBLE, HeavyWeapons.GUNSTEEL_CRUCIBLE_TRAITS, HAConfig.CRUCIBLE)
     );
 
     public static final DeferredItem<HeavyGunItem> GUNSTEEL_CONGREVE = ITEMS.registerItem("gunsteel_congreve",
-            properties -> new HeavyGunItem(properties, HeavyWeapons.GUNSTEEL_CONGREVE, HeavyWeapons.GUNSTEEL_CONGREVE_TRAITS)
+            properties -> new HeavyGunItem(properties, HeavyWeapons.GUNSTEEL_CONGREVE, HeavyWeapons.GUNSTEEL_CONGREVE_TRAITS, HAConfig.CONGREVE)
     );
 
     /* **********************************
