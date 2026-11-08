@@ -11,6 +11,7 @@ import io.redspace.irons_artifice.item.BulletContainerItem;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.MagazineContents;
+import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.irons_artifice.registry.ItemRegistry;
@@ -77,6 +78,15 @@ final class EnchantedMagazineTests {
         helper.succeed();
     }
 
+    static void freeReloadThroughFullFlow(GameTestHelper helper) {
+        Player player = survivalPlayer(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), 0, HAItems.ENCHANTED_MAGAZINE.get()));
+        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 10));
+        ItemStack gun = player.getMainHandItem();
+        helper.assertValueEqual(reloadThroughFlow(helper, player, gun), magazineCapacity(gun), "magazine filled");
+        helper.assertValueEqual(GunplayManager.countBullets(player), 10, "no carried bullets used");
+        helper.succeed();
+    }
+
     static void noBulletsNoReloadWithoutModifier(GameTestHelper helper) {
         Player player = survivalPlayer(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), 0));
         ItemStack gun = player.getMainHandItem();
@@ -128,6 +138,18 @@ final class EnchantedMagazineTests {
         helper.assertValueEqual(GunItem.getMagazine(gun).count(), magazineCapacity(gun), "clockwork rifle filled");
         helper.assertValueEqual(GunplayManager.countBullets(player), 1, "the carried bullet is not consumed");
         helper.succeed();
+    }
+
+    /** A whole reload as the parent runs it: started, ticked until done, then finished with the rounds it planned. */
+    private static int reloadThroughFlow(GameTestHelper helper, Player player, ItemStack gun) {
+        helper.assertValueEqual(GunplayManager.attemptStartReload(player, gun), ReloadResult.STARTING_RELOAD, "reload starts");
+        ReloadState finished = null;
+        for (int tick = 0; tick < 2000 && finished == null; tick++) {
+            finished = ReloadState.tickReload(gun, (GunItem) gun.getItem(), player);
+        }
+        helper.assertTrue(finished != null, "reload finishes");
+        helper.assertValueEqual(GunplayManager.attemptFinishReload(player, gun, finished.roundsToLoad()), ReloadResult.FINISHED_RELOAD, "reload result");
+        return GunItem.getMagazine(gun).count();
     }
 
     static void fullBulletBoxIngredient(GameTestHelper helper) {

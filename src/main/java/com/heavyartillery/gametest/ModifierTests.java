@@ -16,6 +16,7 @@ import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.MagazineContents;
+import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.registry.EntityRegistry;
@@ -55,6 +56,34 @@ final class ModifierTests {
         helper.assertValueEqual(reloadFully(helper, gunWith(ItemRegistry.MUSKET.get(), HAItems.DRUM_MAGAZINE.get())), 2, "a drummed musket holds 2 (1.5 rounded up)");
         helper.assertValueEqual(reloadFully(helper, gunWith(ItemRegistry.SIX_SHOOTER.get(), HAItems.DRUM_MAGAZINE.get())), 9, "a drummed Six-Shooter holds 9");
         helper.assertValueEqual(reloadFully(helper, gunWith(ItemRegistry.SIX_SHOOTER.get())), 6, "without a drum, 6");
+        helper.succeed();
+    }
+
+    static void drumReloadThroughFullFlow(GameTestHelper helper) {
+        Player player = holding(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), HAItems.DRUM_MAGAZINE.get()));
+        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 64));
+        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 64));
+        ItemStack gun = player.getMainHandItem();
+        GunItem.setMagazine(gun, new MagazineContents(60));
+        helper.assertValueEqual(reloadThroughFlow(helper, player, gun), 90, "a full Gatling given a drum tops up to 90");
+        GunItem.setMagazine(gun, new MagazineContents(0));
+        helper.assertValueEqual(reloadThroughFlow(helper, player, gun), 90, "an empty drummed Gatling fills to 90");
+        helper.succeed();
+    }
+
+    /** The modifier menu opens mid-reload: a drum fitted then still counts when the reload finishes. */
+    static void drumFittedMidReload(GameTestHelper helper) {
+        Player player = holding(helper, new ItemStack(HAItems.GUNSTEEL_GATLING.get()));
+        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 64));
+        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 64));
+        ItemStack gun = player.getMainHandItem();
+        GunItem.setMagazine(gun, new MagazineContents(0));
+        helper.assertValueEqual(GunplayManager.attemptStartReload(player, gun), ReloadResult.STARTING_RELOAD, "reload starts");
+        GunContainer container = new GunContainer(gun);
+        container.setItem(0, new ItemStack(HAItems.DRUM_MAGAZINE.get()));
+        container.setChanged();
+        helper.assertValueEqual(finishReload(helper, player, gun), 90, "the reload fills the drummed capacity");
+        helper.assertValueEqual(GunplayManager.countBullets(player), 128 - 90, "and pays for every round");
         helper.succeed();
     }
 
@@ -215,6 +244,23 @@ final class ModifierTests {
         }
         container.setChanged();
         return container.getGunStack();
+    }
+
+    /** A whole reload as the parent runs it: started, ticked until done, then finished with the rounds it planned. */
+    private static int reloadThroughFlow(GameTestHelper helper, Player player, ItemStack gun) {
+        helper.assertValueEqual(GunplayManager.attemptStartReload(player, gun), ReloadResult.STARTING_RELOAD, "reload starts");
+        return finishReload(helper, player, gun);
+    }
+
+    /** Ticks a started reload until it is done, then finishes it as the parent does. */
+    private static int finishReload(GameTestHelper helper, Player player, ItemStack gun) {
+        ReloadState finished = null;
+        for (int tick = 0; tick < 2000 && finished == null; tick++) {
+            finished = ReloadState.tickReload(gun, (GunItem) gun.getItem(), player);
+        }
+        helper.assertTrue(finished != null, "reload finishes");
+        helper.assertValueEqual(GunplayManager.attemptFinishReload(player, gun, finished.roundsToLoad()), ReloadResult.FINISHED_RELOAD, "reload result");
+        return GunItem.getMagazine(gun).count();
     }
 
     private static void assertNear(GameTestHelper helper, double actual, double expected, String what) {

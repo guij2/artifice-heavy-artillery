@@ -13,11 +13,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 /**
  * Routes Iron's Arms 'n Artifice's reload ammo accounting through {@link ReserveAmmo}, so
  * {@code HeavyShotComponents.RESERVE_AMMO_COST} decides how many carried bullets a reload uses, its magazine
- * capacity reads through {@link MagazineSize}, and its reload time through {@link HeavyGunItem#reloadTime}.
+ * capacity reads through {@link MagazineSize}, and its reload time through {@link HeavyGunItem#reloadTime}. A reload
+ * fills what the magazine is missing when it finishes.
  */
 @Mixin(GunplayManager.class)
 public abstract class GunplayManagerMixin {
@@ -52,6 +54,16 @@ public abstract class GunplayManagerMixin {
     )
     private static int artifice_heavy_artillery$reloadCapacity(int base, @Local(argsOnly = true) ItemStack gun) {
         return MagazineSize.capacity(gun, base);
+    }
+
+    /**
+     * The parent caps a reload at the rounds the magazine was missing when it started. The modifier menu opens mid-reload,
+     * so a Drum Magazine fitted then only filled the old capacity. Uncapped (0), the reload loads what is missing when it
+     * finishes, still limited by the bullets carried.
+     */
+    @ModifyVariable(method = "attemptFinishReload", at = @At("HEAD"), argsOnly = true)
+    private static int artifice_heavy_artillery$fillToCurrentCapacity(int roundsToLoad) {
+        return 0;
     }
 
     @ModifyExpressionValue(
