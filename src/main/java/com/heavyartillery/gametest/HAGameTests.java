@@ -39,6 +39,7 @@ public final class HAGameTests {
         TESTS.put("enchanted_magazine_free_reload_from_bullet_box", EnchantedMagazineTests::freeReloadFromBulletBox);
         TESTS.put("enchanted_magazine_free_reload_with_no_bullets", EnchantedMagazineTests::freeReloadWithNoBullets);
         TESTS.put("no_bullets_no_reload_without_modifier", EnchantedMagazineTests::noBulletsNoReloadWithoutModifier);
+        TESTS.put("enchanted_magazine_free_reload_through_full_flow", EnchantedMagazineTests::freeReloadThroughFullFlow);
         TESTS.put("enchanted_magazine_description_is_one_line", EnchantedMagazineTests::descriptionIsOneLine);
         TESTS.put("reload_without_modifier_consumes", EnchantedMagazineTests::reloadWithoutModifierConsumes);
         TESTS.put("reload_without_modifier_is_capped", EnchantedMagazineTests::reloadWithoutModifierIsCapped);
@@ -84,6 +85,8 @@ public final class HAGameTests {
         TESTS.put("balance_congreve_craters_unchanged", BalanceTests::congreveCratersUnchanged);
         TESTS.put("drum_enlarges_magazine", ModifierTests::drumEnlargesMagazine);
         TESTS.put("drums_slow_reload_and_stack", ModifierTests::drumsSlowReloadAndStack);
+        TESTS.put("drum_reload_through_full_flow", ModifierTests::drumReloadThroughFullFlow);
+        TESTS.put("drum_fitted_mid_reload", ModifierTests::drumFittedMidReload);
         TESTS.put("rifled_shot_hits_harder_after_flying", ModifierTests::rifledShotHitsHarderAfterFlying);
         TESTS.put("rifling_caps_and_stacks", ModifierTests::riflingCapsAndStacks);
         TESTS.put("powder_ram_charges_with_time", ModifierTests::powderRamChargesWithTime);
