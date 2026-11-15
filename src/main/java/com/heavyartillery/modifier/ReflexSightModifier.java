@@ -27,8 +27,8 @@ import java.util.function.Consumer;
 public final class ReflexSightModifier extends ConfiguredModifier {
     public ReflexSightModifier() {
         super(() -> Map.of(
-                HeavyShotComponents.AIMED_SPREAD_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.SIGHT_SPREAD_REDUCTION), ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL),
-                HeavyShotComponents.AIMED_RECOIL_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.SIGHT_RECOIL_REDUCTION), ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL)
+                HeavyShotComponents.AIMED_SPREAD_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.SIGHT_SPREAD_REDUCTION), ValueModifier.Operation.ADD),
+                HeavyShotComponents.AIMED_RECOIL_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.SIGHT_RECOIL_REDUCTION), ValueModifier.Operation.ADD)
         ));
     }
 

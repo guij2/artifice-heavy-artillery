@@ -15,8 +15,8 @@ import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.MagazineContents;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.BlackpowderChargeOnHit;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -66,7 +66,7 @@ final class CongreveTests {
 
     static void blackpowderChargeWidensBurst(GameTestHelper helper) {
         helper.assertTrue(Math.abs(radius(congreveShot()) - 4) < 1e-6, "the rocket bursts 4 blocks wide, was " + radius(congreveShot()));
-        ItemStack gun = gunWith(0, ItemRegistry.BLACKPOWDER_CHARGE.get());
+        ItemStack gun = gunWith(0, IronsArtificeItems.BLACKPOWDER_CHARGE.get());
         double widened = radius(GunplayManager.compose(null, HeavyWeapons.GUNSTEEL_CONGREVE, gun));
         helper.assertTrue(Math.abs(widened - 5) < 1e-6, "a Blackpowder Charge adds a block, was " + widened);
         helper.succeed();
@@ -74,7 +74,7 @@ final class CongreveTests {
 
     static void rocketCostsEightBullets(GameTestHelper helper) {
         Player player = survivalPlayer(helper, gunWith(0));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 20));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 20));
         ItemStack gun = player.getMainHandItem();
         helper.assertValueEqual(GunplayManager.attemptFinishReload(player, gun, 0), ReloadResult.FINISHED_RELOAD, "reload result");
         helper.assertValueEqual(GunItem.getMagazine(gun).count(), 1, "one rocket loaded");
@@ -84,7 +84,7 @@ final class CongreveTests {
 
     static void tooFewBulletsForARocket(GameTestHelper helper) {
         Player player = survivalPlayer(helper, gunWith(0));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), HAConfig.get(HAConfig.CONGREVE_BULLETS_PER_ROCKET) - 1));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), HAConfig.get(HAConfig.CONGREVE_BULLETS_PER_ROCKET) - 1));
         ItemStack gun = player.getMainHandItem();
         helper.assertValueEqual(GunplayManager.attemptStartReload(player, gun), ReloadResult.NO_AMMO, "seven bullets don't make a rocket");
         helper.assertValueEqual(GunplayManager.countBullets(player), HAConfig.get(HAConfig.CONGREVE_BULLETS_PER_ROCKET) - 1, "and none are used");
@@ -118,7 +118,7 @@ final class CongreveTests {
     static void rocketHasAModelInFlight(GameTestHelper helper) {
         Bullet rocket = fire(helper, congreveShot(), helper.absoluteVec(new Vec3(1, 3, 1)), helper.absoluteVec(new Vec3(1, 3, 4)));
         helper.assertValueEqual(((ShotModelHolder) rocket).artifice_heavy_artillery$shotModel(), HeavyArtillery.id("congreve_rocket"), "rocket model");
-        ShotProfile musket = GunplayManager.compose(null, io.redspace.irons_artifice.gun.Guns.MUSKET, new ItemStack(ItemRegistry.MUSKET.get()));
+        ShotProfile musket = GunplayManager.compose(null, io.redspace.irons_artifice.gun.Guns.MUSKET, new ItemStack(IronsArtificeItems.MUSKET.get()));
         Bullet ball = fire(helper, musket, helper.absoluteVec(new Vec3(2, 3, 1)), helper.absoluteVec(new Vec3(2, 3, 4)));
         helper.assertTrue(((ShotModelHolder) ball).artifice_heavy_artillery$shotModel() == null, "a musket ball stays invisible");
         helper.succeed();
@@ -190,7 +190,7 @@ final class CongreveTests {
     /** One shot, the way GunplayManager fires them, aimed exactly (absolute positions). */
     private static Bullet fire(GameTestHelper helper, ShotProfile shot, Vec3 from, Vec3 to) {
         ServerLevel level = helper.getLevel();
-        Bullet bullet = new Bullet(EntityRegistry.BULLET.get(), level);
+        Bullet bullet = new Bullet(IronsArtificeEntities.BULLET.get(), level);
         bullet.applyProfile(shot.copy());
         bullet.setPos(from);
         Vec3 direction = to.subtract(from);

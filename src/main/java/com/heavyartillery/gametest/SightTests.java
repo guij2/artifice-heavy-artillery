@@ -14,7 +14,7 @@ import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -42,7 +42,7 @@ final class SightTests {
     }
 
     static void useAimsDownSight(GameTestHelper helper) {
-        Player player = holding(helper, gunWith(ItemRegistry.MUSKET.get(), HAItems.REFLEX_SIGHT.get()));
+        Player player = holding(helper, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.REFLEX_SIGHT.get()));
         aim(player);
         helper.assertTrue(player.isUsingItem(), "using the gun");
         helper.assertTrue(SightAim.isAiming(player), "aiming down the sight");
@@ -54,15 +54,15 @@ final class SightTests {
     }
 
     static void withoutSightUseDoesNotAim(GameTestHelper helper) {
-        Player player = holding(helper, gunWith(ItemRegistry.MUSKET.get()));
+        Player player = holding(helper, gunWith(IronsArtificeItems.MUSKET.get()));
         aim(player);
         helper.assertFalse(SightAim.isAiming(player), "a plain gun doesn't aim");
         helper.succeed();
     }
 
     static void aimingCutsSpreadAndRecoil(GameTestHelper helper) {
-        Player plain = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get()));
-        Player sighted = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get(), HAItems.REFLEX_SIGHT.get()));
+        Player plain = holding(helper, gunWith(IronsArtificeItems.CLOCKWORK_RIFLE.get()));
+        Player sighted = holding(helper, gunWith(IronsArtificeItems.CLOCKWORK_RIFLE.get(), HAItems.REFLEX_SIGHT.get()));
         aim(sighted);
         ShotProfile hip = compose(plain);
         ShotProfile aimed = compose(sighted);
@@ -83,8 +83,8 @@ final class SightTests {
     }
 
     static void secondSightAddsNothing(GameTestHelper helper) {
-        Player one = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get(), HAItems.REFLEX_SIGHT.get()));
-        Player two = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get(), HAItems.REFLEX_SIGHT.get(), HAItems.REFLEX_SIGHT.get()));
+        Player one = holding(helper, gunWith(IronsArtificeItems.CLOCKWORK_RIFLE.get(), HAItems.REFLEX_SIGHT.get()));
+        Player two = holding(helper, gunWith(IronsArtificeItems.CLOCKWORK_RIFLE.get(), HAItems.REFLEX_SIGHT.get(), HAItems.REFLEX_SIGHT.get()));
         aim(one);
         aim(two);
         assertNear(helper, compose(two).value(HeavyShotComponents.AIMED_SPREAD_REDUCTION), HAConfig.get(HAConfig.SIGHT_SPREAD_REDUCTION), "aimed spread reduction with two sights");
@@ -95,7 +95,7 @@ final class SightTests {
     }
 
     static void fitsTheOpticSocket(GameTestHelper helper) {
-        ItemStack gun = gunWith(ItemRegistry.MUSKET.get(), HAItems.REFLEX_SIGHT.get(), HAItems.PORTABLE_TRIPOD.get());
+        ItemStack gun = gunWith(IronsArtificeItems.MUSKET.get(), HAItems.REFLEX_SIGHT.get(), HAItems.PORTABLE_TRIPOD.get());
         AttachmentMap attachments = gun.get(DataComponentRegistry.ATTACHMENT.get());
         helper.assertTrue(attachments != null && SightAim.ATTACHMENT.equals(attachments.attachments().get(GunBones.SOCKET_OPTIC)),
                 "the sight sits in the optic socket: " + attachments);
@@ -107,7 +107,7 @@ final class SightTests {
     }
 
     static void scopeTakesOver(GameTestHelper helper) {
-        Player player = holding(helper, gunWith(ItemRegistry.MUSKET.get(), HAItems.REFLEX_SIGHT.get(), ItemRegistry.SCOPE_ATTACHMENT_MODIFIER.get()));
+        Player player = holding(helper, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.REFLEX_SIGHT.get(), IronsArtificeItems.SCOPE_ATTACHMENT_MODIFIER.get()));
         aim(player);
         helper.assertTrue(GunItem.isScoping(player), "a gun with a scope as well scopes");
         helper.assertFalse(SightAim.isAiming(player), "and doesn't aim down the sight");
@@ -127,7 +127,7 @@ final class SightTests {
         ItemStack copper = new ItemStack(Items.COPPER_INGOT);
         CraftingInput grid = CraftingInput.of(3, 2, List.of(
                 copper.copy(), new ItemStack(Items.GLASS_PANE), copper.copy(),
-                ItemStack.EMPTY, new ItemStack(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS.get()), ItemStack.EMPTY));
+                ItemStack.EMPTY, new ItemStack(IronsArtificeItems.SIMPLE_MECHANICAL_COMPONENTS.get()), ItemStack.EMPTY));
         var match = helper.getLevel().getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, grid, helper.getLevel());
         helper.assertTrue(match.isPresent() && match.get().id().equals(ResourceKey.create(Registries.RECIPE, HeavyArtillery.id("reflex_sight_attachment_modifier"))),
                 "a glass pane between copper ingots, on simple mechanical components, crafts the Reflex Sight Attachment Modifier");

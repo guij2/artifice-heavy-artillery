@@ -21,13 +21,13 @@ import java.util.function.Consumer;
 public final class RifledBarrelModifier extends ConfiguredModifier {
     public RifledBarrelModifier() {
         super(() -> Map.of(
-                HeavyShotComponents.RIFLING, new ValueModifier(HAConfig.get(HAConfig.RIFLED_DAMAGE_PER_BLOCK), ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL),
+                HeavyShotComponents.RIFLING, new ValueModifier(HAConfig.get(HAConfig.RIFLED_DAMAGE_PER_BLOCK), ValueModifier.Operation.ADD),
                 ShotComponents.RELOAD_SPEED_MULTIPLIER, reloadPenalty()
         ));
     }
 
     private static ValueModifier reloadPenalty() {
-        return new ValueModifier(-HAConfig.get(HAConfig.RIFLED_RELOAD_PENALTY), ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL);
+        return new ValueModifier(-HAConfig.get(HAConfig.RIFLED_RELOAD_PENALTY), ValueModifier.Operation.MULTIPLY_TOTAL);
     }
 
     /**

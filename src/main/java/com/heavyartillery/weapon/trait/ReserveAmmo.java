@@ -4,7 +4,7 @@ import com.heavyartillery.weapon.HeavyShotComponents;
 import io.redspace.irons_artifice.data.PlayableSound;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
-import io.redspace.irons_artifice.registry.SoundRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeSounds;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -75,6 +75,6 @@ public final class ReserveAmmo {
         if (refunded <= 0 || player.level().isClientSide()) {
             return;
         }
-        PlayableSound.of(SoundRegistry.INFINITY_BULLET, 0.6f, 0.9f, 1.1f).play(player.level(), player.position(), SoundSource.PLAYERS);
+        PlayableSound.of(IronsArtificeSounds.INFINITY_BULLET, 0.6f, 0.9f, 1.1f).play(player.level(), player.position(), SoundSource.PLAYERS);
     }
 }

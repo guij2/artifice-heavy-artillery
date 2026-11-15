@@ -19,8 +19,8 @@ import java.util.function.Consumer;
 public final class PowderRamModifier extends ConfiguredModifier {
     public PowderRamModifier() {
         super(() -> Map.of(
-                HeavyShotComponents.POWDER_RAM, new ValueModifier(HAConfig.get(HAConfig.POWDER_RAM_DAMAGE_BONUS), ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL),
-                HeavyShotComponents.POWDER_RAM_CHARGE, new ValueModifier(HAConfig.get(HAConfig.POWDER_RAM_CHARGE_TICKS), ValueModifier.Operation.ADD, ValueModifier.Type.HARMFUL)
+                HeavyShotComponents.POWDER_RAM, new ValueModifier(HAConfig.get(HAConfig.POWDER_RAM_DAMAGE_BONUS), ValueModifier.Operation.ADD),
+                HeavyShotComponents.POWDER_RAM_CHARGE, new ValueModifier(HAConfig.get(HAConfig.POWDER_RAM_CHARGE_TICKS), ValueModifier.Operation.ADD)
         ));
     }
 

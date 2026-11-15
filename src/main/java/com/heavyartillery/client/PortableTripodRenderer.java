@@ -20,7 +20,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.redspace.irons_artifice.api.GunBones;
 import io.redspace.irons_artifice.client.gun.SimpleItemGeoModel;
 import io.redspace.irons_artifice.item.GunItem;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -85,13 +85,13 @@ public final class PortableTripodRenderer {
      * of the ammo box; on the Crucible, under the boiler, its legs folding flat beneath the fuel capsule.
      */
     private static final Map<Item, Mount> MOUNTS = Map.of(
-            ItemRegistry.FLINTLOCK_PISTOL.get(), new Mount(new Vec3(0, -0.5, -12.5), 0.6f),
-            ItemRegistry.MUSKET.get(), new Mount(new Vec3(0, 0.25, -15), 1),
-            ItemRegistry.ARQUEBUS.get(), new Mount(new Vec3(0, 1, -14), 1),
-            ItemRegistry.BLUNDERBUSS.get(), new Mount(new Vec3(0, 0.25, -12), 1),
-            ItemRegistry.SIX_SHOOTER.get(), new Mount(new Vec3(0, 2.75, -6.5), 0.5f),
-            ItemRegistry.BLACKPOWDER_REVOLVER.get(), new Mount(new Vec3(0, 4, -11.5), 0.5f),
-            ItemRegistry.CLOCKWORK_RIFLE.get(), new Mount(new Vec3(0, 1.5, -17), 1),
+            IronsArtificeItems.FLINTLOCK_PISTOL.get(), new Mount(new Vec3(0, -0.5, -12.5), 0.6f),
+            IronsArtificeItems.MUSKET.get(), new Mount(new Vec3(0, 0.25, -15), 1),
+            IronsArtificeItems.ARQUEBUS.get(), new Mount(new Vec3(0, 1, -14), 1),
+            IronsArtificeItems.BLUNDERBUSS.get(), new Mount(new Vec3(0, 0.25, -12), 1),
+            IronsArtificeItems.SIX_SHOOTER.get(), new Mount(new Vec3(0, 2.75, -6.5), 0.5f),
+            IronsArtificeItems.BLACKPOWDER_REVOLVER.get(), new Mount(new Vec3(0, 4, -11.5), 0.5f),
+            IronsArtificeItems.CLOCKWORK_RIFLE.get(), new Mount(new Vec3(0, 1.5, -17), 1),
             HAItems.GUNSTEEL_GATLING.get(), new Mount(new Vec3(0, 2.5, -17), 1),
             HAItems.GUNSTEEL_CRUCIBLE.get(), new Mount(new Vec3(0, -4, -3), 1, 0.05f)
     );

@@ -4,7 +4,7 @@ import com.heavyartillery.HeavyArtillery;
 import com.heavyartillery.crafting.FullBulletContainerIngredient;
 import com.heavyartillery.crafting.StoredEnchantmentIngredient;
 import com.heavyartillery.registry.HAItems;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -40,8 +40,8 @@ public class HARecipeProvider extends RecipeProvider {
                 .define('I', commonTag("ingots/iron"))
                 .define('B', Items.BLAZE_ROD)
                 .define('C', commonTag("ingots/copper"))
-                .define('M', ItemRegistry.CLOCKWORK_COMPONENTS)
-                .unlockedBy("has_clockwork_components", this.has(ItemRegistry.CLOCKWORK_COMPONENTS))
+                .define('M', IronsArtificeItems.CLOCKWORK_COMPONENTS)
+                .unlockedBy("has_clockwork_components", this.has(IronsArtificeItems.CLOCKWORK_COMPONENTS))
                 .save(this.output);
 
         /* **********************************
@@ -96,9 +96,9 @@ public class HARecipeProvider extends RecipeProvider {
                 .pattern("EIE")
                 .pattern("BEB")
                 .define('B', FullBulletContainerIngredient.INSTANCE.toVanilla())
-                .define('E', ItemRegistry.ENCHANTED_BULLET_MODIFIER)
+                .define('E', IronsArtificeItems.ENCHANTED_BULLET_MODIFIER)
                 .define('I', new StoredEnchantmentIngredient(enchantments.getOrThrow(Enchantments.INFINITY), 1).toVanilla())
-                .unlockedBy("has_enchanted_bullet_modifier", this.has(ItemRegistry.ENCHANTED_BULLET_MODIFIER))
+                .unlockedBy("has_enchanted_bullet_modifier", this.has(IronsArtificeItems.ENCHANTED_BULLET_MODIFIER))
                 .save(this.output);
         // Portable Tripod: shaped like one, a Heavy Components head on three iron legs
         ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, HAItems.PORTABLE_TRIPOD.get())
@@ -115,8 +115,8 @@ public class HARecipeProvider extends RecipeProvider {
                 .pattern(" M ")
                 .define('C', commonTag("ingots/copper"))
                 .define('G', commonTag("glass_panes"))
-                .define('M', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
-                .unlockedBy("has_simple_mechanical_components", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
+                .define('M', IronsArtificeItems.SIMPLE_MECHANICAL_COMPONENTS)
+                .unlockedBy("has_simple_mechanical_components", this.has(IronsArtificeItems.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(this.output);
         // Drum Magazine: a copper-banded iron drum round the heavy components that wind it
         ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, HAItems.DRUM_MAGAZINE.get())
@@ -142,7 +142,7 @@ public class HARecipeProvider extends RecipeProvider {
                 .pattern("PHP")
                 .pattern("PSP")
                 .pattern(" S ")
-                .define('P', ItemRegistry.BLACKPOWDER)
+                .define('P', IronsArtificeItems.BLACKPOWDER)
                 .define('H', HAItems.HEAVY_COMPONENTS)
                 .define('S', Items.STICK)
                 .unlockedBy("has_heavy_components", this.has(HAItems.HEAVY_COMPONENTS))

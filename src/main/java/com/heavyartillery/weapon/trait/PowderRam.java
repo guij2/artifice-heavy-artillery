@@ -29,7 +29,7 @@ public final class PowderRam {
         ShotProfile profile = event.getShotProfile();
         double bonus = profile.value(HeavyShotComponents.POWDER_RAM) * charge(event.getEntity(), profile.value(HeavyShotComponents.POWDER_RAM_CHARGE));
         if (bonus > 0) {
-            profile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(bonus, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
+            profile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(bonus, ValueModifier.Operation.MULTIPLY_TOTAL));
         }
     }
 

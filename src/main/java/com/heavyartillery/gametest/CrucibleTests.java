@@ -8,8 +8,8 @@ import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.menu.GunContainer;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
@@ -71,7 +71,7 @@ final class CrucibleTests {
         helper.setBlock(planks, Blocks.OAK_PLANKS);
         helper.setBlock(stone, Blocks.STONE);
         helper.setBlock(glass, Blocks.GLASS);
-        ShotProfile shot = crucibleShot(ItemRegistry.BREACHING_SHELL.get());
+        ShotProfile shot = crucibleShot(IronsArtificeItems.BREACHING_SHELL.get());
         helper.assertTrue(shot.peek(ShotComponents.BREAKS_BLOCKS), "the Breaching Shell enables terrain damage");
         sprayDown(helper, shot, planks);
         sprayDown(helper, shot, stone);
@@ -129,7 +129,7 @@ final class CrucibleTests {
     /** One glob, the way GunplayManager fires them, aimed exactly (absolute positions). */
     private static Bullet fire(GameTestHelper helper, ShotProfile shot, Vec3 from, Vec3 to) {
         ServerLevel level = helper.getLevel();
-        Bullet bullet = new Bullet(EntityRegistry.BULLET.get(), level);
+        Bullet bullet = new Bullet(IronsArtificeEntities.BULLET.get(), level);
         bullet.applyProfile(shot.copy());
         bullet.setPos(from);
         Vec3 direction = to.subtract(from);

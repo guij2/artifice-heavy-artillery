@@ -3,7 +3,7 @@ package com.heavyartillery.client;
 import com.heavyartillery.HeavyArtillery;
 import com.heavyartillery.client.particle.MoltenSprayParticle;
 import com.heavyartillery.registry.HAParticles;
-import io.redspace.irons_artifice.registry.EntityRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -27,7 +27,7 @@ public final class HAClient {
     /** Runs after Iron's Arms 'n Artifice's (we load after it), so this replaces its invisible bullet renderer. */
     @SubscribeEvent
     static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(EntityRegistry.BULLET.get(), ShotModelRenderer::new);
+        event.registerEntityRenderer(IronsArtificeEntities.BULLET.get(), ShotModelRenderer::new);
     }
 
     private HAClient() {

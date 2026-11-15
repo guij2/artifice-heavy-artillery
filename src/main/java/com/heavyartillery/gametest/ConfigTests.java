@@ -25,8 +25,8 @@ import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.menu.GunModifierMenu;
 import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.BlackpowderChargeOnHit;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
@@ -75,7 +75,7 @@ final class ConfigTests {
     static void magazineAndReloadFollowConfig(GameTestHelper helper) {
         Player player = helper.makeMockPlayer(GameType.SURVIVAL);
         player.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(HAItems.GUNSTEEL_GATLING.get()));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 200));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 200));
         ItemStack gun = player.getMainHandItem();
         GunItem.setMagazine(gun, new MagazineContents(0));
         try {
@@ -153,7 +153,7 @@ final class ConfigTests {
             assertNear(helper, shot.value(HeavyShotComponents.MOUNTED_SPREAD_REDUCTION), 0.9, "mounted spread reduction");
             assertNear(helper, shot.value(HeavyShotComponents.MOUNTED_RECOIL_REDUCTION), 0.2, "mounted recoil reduction");
 
-            Bullet bullet = new Bullet(EntityRegistry.BULLET.get(), helper.getLevel());
+            Bullet bullet = new Bullet(IronsArtificeEntities.BULLET.get(), helper.getLevel());
             bullet.applyProfile(shot.copy());
             assertNear(helper, Rifling.apply(bullet, 10, Vec3.ZERO, new Vec3(0, 0, 20)), 15, "rifling counts 10 blocks");
             Player player = helper.makeMockPlayer(GameType.SURVIVAL);

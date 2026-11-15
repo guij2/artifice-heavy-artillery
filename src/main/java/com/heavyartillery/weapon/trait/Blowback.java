@@ -27,16 +27,16 @@ public final class Blowback {
         }
         LivingEntity shooter = event.getEntity();
         if (TripodMount.isMounted(shooter)) {
-            profile.modifyValue(ShotComponents.CHARACTER_BLOWBACK, new ValueModifier(-1, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
+            profile.modifyValue(ShotComponents.CHARACTER_BLOWBACK, new ValueModifier(-1, ValueModifier.Operation.MULTIPLY_TOTAL));
             return;
         }
         if (!shooter.onGround()) {
             double airborne = Math.max(0, profile.value(HeavyShotComponents.AIRBORNE_BLOWBACK));
-            profile.modifyValue(ShotComponents.CHARACTER_BLOWBACK, new ValueModifier(airborne - 1, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
+            profile.modifyValue(ShotComponents.CHARACTER_BLOWBACK, new ValueModifier(airborne - 1, ValueModifier.Operation.MULTIPLY_TOTAL));
         } else if (Brace.isBracing(shooter)) {
             double braced = HeavyMath.fraction(profile.value(HeavyShotComponents.BRACE_RECOIL_REDUCTION));
             if (braced > 0) {
-                profile.modifyValue(ShotComponents.CHARACTER_BLOWBACK, new ValueModifier(-braced, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
+                profile.modifyValue(ShotComponents.CHARACTER_BLOWBACK, new ValueModifier(-braced, ValueModifier.Operation.MULTIPLY_TOTAL));
             }
         }
     }

@@ -19,12 +19,14 @@ import io.redspace.irons_artifice.item.MagazineContents;
 import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.modifier.GunModifier;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
@@ -55,16 +57,16 @@ final class ModifierTests {
 
     static void drumEnlargesMagazine(GameTestHelper helper) {
         helper.assertValueEqual(reloadFully(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), HAItems.DRUM_MAGAZINE.get())), 90, "a drummed Gatling holds 60 + 50%");
-        helper.assertValueEqual(reloadFully(helper, gunWith(ItemRegistry.MUSKET.get(), HAItems.DRUM_MAGAZINE.get())), 2, "a drummed musket holds 2 (1.5 rounded up)");
-        helper.assertValueEqual(reloadFully(helper, gunWith(ItemRegistry.SIX_SHOOTER.get(), HAItems.DRUM_MAGAZINE.get())), 9, "a drummed Six-Shooter holds 9");
-        helper.assertValueEqual(reloadFully(helper, gunWith(ItemRegistry.SIX_SHOOTER.get())), 6, "without a drum, 6");
+        helper.assertValueEqual(reloadFully(helper, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.DRUM_MAGAZINE.get())), 2, "a drummed musket holds 2 (1.5 rounded up)");
+        helper.assertValueEqual(reloadFully(helper, gunWith(IronsArtificeItems.SIX_SHOOTER.get(), HAItems.DRUM_MAGAZINE.get())), 9, "a drummed Six-Shooter holds 9");
+        helper.assertValueEqual(reloadFully(helper, gunWith(IronsArtificeItems.SIX_SHOOTER.get())), 6, "without a drum, 6");
         helper.succeed();
     }
 
     static void drumReloadThroughFullFlow(GameTestHelper helper) {
         Player player = holding(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), HAItems.DRUM_MAGAZINE.get()));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 64));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 64));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
         ItemStack gun = player.getMainHandItem();
         GunItem.setMagazine(gun, new MagazineContents(60));
         helper.assertValueEqual(reloadThroughFlow(helper, player, gun), 90, "a full Gatling given a drum tops up to 90");
@@ -76,8 +78,8 @@ final class ModifierTests {
     /** The modifier menu opens mid-reload: a drum fitted then still counts when the reload finishes. */
     static void drumFittedMidReload(GameTestHelper helper) {
         Player player = holding(helper, new ItemStack(HAItems.GUNSTEEL_GATLING.get()));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 64));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 64));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
         ItemStack gun = player.getMainHandItem();
         GunItem.setMagazine(gun, new MagazineContents(0));
         helper.assertValueEqual(GunplayManager.attemptStartReload(player, gun), ReloadResult.STARTING_RELOAD, "reload starts");
@@ -108,8 +110,8 @@ final class ModifierTests {
         IronGolem plainTarget = helper.spawnWithNoFreeWill(EntityType.IRON_GOLEM, new BlockPos(1, 1, 5));
         IronGolem rifledTarget = helper.spawnWithNoFreeWill(EntityType.IRON_GOLEM, new BlockPos(4, 1, 5));
         float full = plainTarget.getMaxHealth();
-        shoot(helper, compose(null, gunWith(ItemRegistry.MUSKET.get())), plainTarget);
-        shoot(helper, compose(null, gunWith(ItemRegistry.MUSKET.get(), HAItems.RIFLED_BARREL.get())), rifledTarget);
+        shoot(helper, compose(null, gunWith(IronsArtificeItems.MUSKET.get())), plainTarget);
+        shoot(helper, compose(null, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.RIFLED_BARREL.get())), rifledTarget);
         helper.succeedWhen(() -> {
             float plain = full - plainTarget.getHealth();
             float rifled = full - rifledTarget.getHealth();
@@ -120,12 +122,12 @@ final class ModifierTests {
     }
 
     static void riflingCapsAndStacks(GameTestHelper helper) {
-        ShotProfile one = compose(null, gunWith(ItemRegistry.MUSKET.get(), HAItems.RIFLED_BARREL.get()));
-        ShotProfile two = compose(null, gunWith(ItemRegistry.MUSKET.get(), HAItems.RIFLED_BARREL.get(), HAItems.RIFLED_BARREL.get()));
+        ShotProfile one = compose(null, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.RIFLED_BARREL.get()));
+        ShotProfile two = compose(null, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.RIFLED_BARREL.get(), HAItems.RIFLED_BARREL.get()));
         assertNear(helper, two.value(HeavyShotComponents.RIFLING), 2 * HAConfig.get(HAConfig.RIFLED_DAMAGE_PER_BLOCK), "rifling with two barrels");
         double slower = one.value(ShotComponents.RELOAD_SPEED_MULTIPLIER);
         assertNear(helper, two.value(ShotComponents.RELOAD_SPEED_MULTIPLIER), slower * slower, "reload with two barrels");
-        Bullet bullet = new Bullet(EntityRegistry.BULLET.get(), helper.getLevel());
+        Bullet bullet = new Bullet(IronsArtificeEntities.BULLET.get(), helper.getLevel());
         bullet.applyProfile(one.copy());
         assertNear(helper, Rifling.apply(bullet, 10, Vec3.ZERO, new Vec3(0, 0, 10)), 12, "10 blocks: +20%");
         assertNear(helper, Rifling.apply(bullet, 10, Vec3.ZERO, new Vec3(0, 0, 100)), 16, "capped at +60% (30 blocks)");
@@ -140,8 +142,8 @@ final class ModifierTests {
      ********************************** */
 
     static void powderRamChargesWithTime(GameTestHelper helper) {
-        Player player = holding(helper, gunWith(ItemRegistry.MUSKET.get(), HAItems.POWDER_RAM.get()));
-        double base = compose(null, gunWith(ItemRegistry.MUSKET.get())).value(ShotComponents.DAMAGE);
+        Player player = holding(helper, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.POWDER_RAM.get()));
+        double base = compose(null, gunWith(IronsArtificeItems.MUSKET.get())).value(ShotComponents.DAMAGE);
         assertNear(helper, compose(player, player.getMainHandItem()).value(ShotComponents.DAMAGE), base * 1.5, "not fired yet: fully charged");
         long now = helper.getLevel().getGameTime();
         player.setData(HAAttachments.LAST_SHOT, now);
@@ -151,7 +153,7 @@ final class ModifierTests {
         assertNear(helper, compose(player, player.getMainHandItem()).value(ShotComponents.DAMAGE), base * 1.25, "half charged");
         player.setData(HAAttachments.LAST_SHOT, now - 200);
         assertNear(helper, compose(player, player.getMainHandItem()).value(ShotComponents.DAMAGE), base * 1.5, "long after: fully charged");
-        Player twoRams = holding(helper, gunWith(ItemRegistry.MUSKET.get(), HAItems.POWDER_RAM.get(), HAItems.POWDER_RAM.get()));
+        Player twoRams = holding(helper, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.POWDER_RAM.get(), HAItems.POWDER_RAM.get()));
         assertNear(helper, compose(twoRams, twoRams.getMainHandItem()).value(ShotComponents.DAMAGE), base * 2, "two rams stack");
         twoRams.setData(HAAttachments.LAST_SHOT, now - chargeTicks);
         assertNear(helper, compose(twoRams, twoRams.getMainHandItem()).value(ShotComponents.DAMAGE), base * 1.5,
@@ -170,6 +172,9 @@ final class ModifierTests {
         assertDescription(helper, new RifledBarrelModifier(), "+2% Damage per block the shot travels, up to +60% | 85% Reload Speed");
         assertDescription(helper, new PowderRamModifier(), "Up to +50% Damage, building over 1.5s since your last shot");
         helper.assertTrue(new ItemStack(HAItems.POWDER_RAM.get()).getHoverName().getString().equals("Powder Ram Modifier"), "item name");
+        // colors come from each component's sentiment: more capacity is good, less reload speed is bad
+        assertColors(helper, new DrumMagazineModifier(), ChatFormatting.GREEN, ChatFormatting.RED);
+        assertColors(helper, new RifledBarrelModifier(), ChatFormatting.GREEN, ChatFormatting.RED);
         helper.succeed();
     }
 
@@ -178,7 +183,7 @@ final class ModifierTests {
         ItemStack iron = new ItemStack(Items.IRON_INGOT);
         ItemStack copper = new ItemStack(Items.COPPER_INGOT);
         ItemStack ironBlock = new ItemStack(Items.IRON_BLOCK);
-        ItemStack powder = new ItemStack(ItemRegistry.BLACKPOWDER.get());
+        ItemStack powder = new ItemStack(IronsArtificeItems.BLACKPOWDER.get());
         ItemStack stick = new ItemStack(Items.STICK);
         ItemStack none = ItemStack.EMPTY;
         assertRecipe(helper, "drum_magazine_modifier", CraftingInput.of(3, 3, List.of(iron, copper, iron, copper, heavy, copper, iron, copper, iron)));
@@ -193,7 +198,7 @@ final class ModifierTests {
 
     private static int reloadFully(GameTestHelper helper, ItemStack gun) {
         Player player = holding(helper, gun);
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 200));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 200));
         GunItem.setMagazine(player.getMainHandItem(), new MagazineContents(0));
         helper.assertValueEqual(GunplayManager.attemptFinishReload(player, player.getMainHandItem(), 0), ReloadResult.FINISHED_RELOAD, "reload");
         return GunItem.getMagazine(player.getMainHandItem()).count();
@@ -204,7 +209,7 @@ final class ModifierTests {
         ServerLevel level = helper.getLevel();
         Vec3 aim = target.getBoundingBox().getCenter();
         Vec3 from = aim.add(0, 0, -5);
-        Bullet bullet = new Bullet(EntityRegistry.BULLET.get(), level);
+        Bullet bullet = new Bullet(IronsArtificeEntities.BULLET.get(), level);
         bullet.applyProfile(shot.copy());
         bullet.setPos(from);
         bullet.shoot(0, 0, 1, (float) shot.value(ShotComponents.BULLET_SPEED), 0);
@@ -216,6 +221,15 @@ final class ModifierTests {
         modifier.getDescriptionText(lines::add);
         String text = String.join(" | ", lines.stream().map(Component::getString).toList());
         helper.assertTrue(text.equals(expected), "description: expected \"" + expected + "\", was \"" + text + "\"");
+    }
+
+    private static void assertColors(GameTestHelper helper, GunModifier modifier, ChatFormatting... expected) {
+        List<Component> lines = new ArrayList<>();
+        modifier.getDescriptionText(lines::add);
+        helper.assertValueEqual(lines.size(), expected.length, "description lines");
+        for (int i = 0; i < expected.length; i++) {
+            helper.assertValueEqual(lines.get(i).getStyle().getColor(), TextColor.fromLegacyFormat(expected[i]), "color of \"" + lines.get(i).getString() + "\"");
+        }
     }
 
     private static void assertRecipe(GameTestHelper helper, String id, CraftingInput grid) {
