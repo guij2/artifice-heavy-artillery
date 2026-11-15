@@ -14,7 +14,7 @@ import io.redspace.irons_artifice.item.MagazineContents;
 import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -47,7 +47,7 @@ final class EnchantedMagazineTests {
 
     static void freeReloadWithOneBullet(GameTestHelper helper) {
         Player player = survivalPlayer(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), 0, HAItems.ENCHANTED_MAGAZINE.get()));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 1));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 1));
         ItemStack gun = player.getMainHandItem();
 
         helper.assertValueEqual(GunplayManager.attemptFinishReload(player, gun, 0), ReloadResult.FINISHED_RELOAD, "reload result");
@@ -80,7 +80,7 @@ final class EnchantedMagazineTests {
 
     static void freeReloadThroughFullFlow(GameTestHelper helper) {
         Player player = survivalPlayer(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), 0, HAItems.ENCHANTED_MAGAZINE.get()));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 10));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 10));
         ItemStack gun = player.getMainHandItem();
         helper.assertValueEqual(reloadThroughFlow(helper, player, gun), magazineCapacity(gun), "magazine filled");
         helper.assertValueEqual(GunplayManager.countBullets(player), 10, "no carried bullets used");
@@ -107,8 +107,8 @@ final class EnchantedMagazineTests {
 
     static void reloadWithoutModifierConsumes(GameTestHelper helper) {
         Player player = survivalPlayer(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), 0));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 64));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 36));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 36));
         ItemStack gun = player.getMainHandItem();
         int capacity = magazineCapacity(gun);
 
@@ -120,7 +120,7 @@ final class EnchantedMagazineTests {
 
     static void reloadWithoutModifierIsCapped(GameTestHelper helper) {
         Player player = survivalPlayer(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), 0));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 10));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 10));
         ItemStack gun = player.getMainHandItem();
 
         GunplayManager.attemptFinishReload(player, gun, 0);
@@ -130,8 +130,8 @@ final class EnchantedMagazineTests {
     }
 
     static void worksOnParentGuns(GameTestHelper helper) {
-        Player player = survivalPlayer(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get(), 0, HAItems.ENCHANTED_MAGAZINE.get()));
-        player.getInventory().add(new ItemStack(ItemRegistry.BULLET.get(), 1));
+        Player player = survivalPlayer(helper, gunWith(IronsArtificeItems.CLOCKWORK_RIFLE.get(), 0, HAItems.ENCHANTED_MAGAZINE.get()));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 1));
         ItemStack gun = player.getMainHandItem();
 
         helper.assertValueEqual(GunplayManager.attemptFinishReload(player, gun, 0), ReloadResult.FINISHED_RELOAD, "reload result");
@@ -154,10 +154,10 @@ final class EnchantedMagazineTests {
 
     static void fullBulletBoxIngredient(GameTestHelper helper) {
         FullBulletContainerIngredient ingredient = FullBulletContainerIngredient.INSTANCE;
-        helper.assertFalse(ingredient.test(new ItemStack(ItemRegistry.BULLET_BOX.get())), "an empty bullet box is rejected");
+        helper.assertFalse(ingredient.test(new ItemStack(IronsArtificeItems.BULLET_BOX.get())), "an empty bullet box is rejected");
         helper.assertFalse(ingredient.test(bulletBox(255)), "a bullet box one short of full is rejected");
         helper.assertTrue(ingredient.test(fullBulletBox()), "a full bullet box is accepted");
-        helper.assertFalse(ingredient.test(new ItemStack(ItemRegistry.BULLET.get(), 64)), "loose bullets are rejected");
+        helper.assertFalse(ingredient.test(new ItemStack(IronsArtificeItems.BULLET.get(), 64)), "loose bullets are rejected");
         helper.succeed();
     }
 
@@ -217,15 +217,15 @@ final class EnchantedMagazineTests {
     }
 
     private static ItemStack fullBulletBox() {
-        return bulletBox(BulletContainerItem.contents(new ItemStack(ItemRegistry.BULLET_BOX.get())).capacity());
+        return bulletBox(BulletContainerItem.contents(new ItemStack(IronsArtificeItems.BULLET_BOX.get())).capacity());
     }
 
     private static ItemStack bulletBox(int bullets) {
-        ItemStack box = new ItemStack(ItemRegistry.BULLET_BOX.get());
+        ItemStack box = new ItemStack(IronsArtificeItems.BULLET_BOX.get());
         int capacity = BulletContainerItem.contents(box).capacity();
         List<ItemStack> stacks = new ArrayList<>();
         for (int remaining = bullets; remaining > 0; remaining -= 64) {
-            stacks.add(new ItemStack(ItemRegistry.BULLET.get(), Math.min(64, remaining)));
+            stacks.add(new ItemStack(IronsArtificeItems.BULLET.get(), Math.min(64, remaining)));
         }
         box.set(DataComponentRegistry.BULLET_POUCH.get(), new BulletContainerContents(capacity, stacks));
         return box;
@@ -250,7 +250,7 @@ final class EnchantedMagazineTests {
      * B E B / E I E / B E B, with {@code box} in every B.
      */
     private static CraftingInput recipeGrid(GameTestHelper helper, ItemStack box) {
-        ItemStack bullet = new ItemStack(ItemRegistry.ENCHANTED_BULLET_MODIFIER.get());
+        ItemStack bullet = new ItemStack(IronsArtificeItems.ENCHANTED_BULLET_MODIFIER.get());
         ItemStack infinity = book(helper, Enchantments.INFINITY);
         List<ItemStack> grid = List.of(
                 box.copy(), bullet.copy(), box.copy(),

@@ -7,7 +7,7 @@ import com.heavyartillery.weapon.trait.SightAim;
 import io.redspace.irons_artifice.client.gun.AttachmentGeoRenderer;
 import io.redspace.irons_artifice.client.gun.AttachmentRenderableRegistry;
 import io.redspace.irons_artifice.client.gun.SimpleItemGeoModel;
-import io.redspace.irons_artifice.registry.EntityRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -27,7 +27,7 @@ public final class HAClient {
     /** Runs after Iron's Arms 'n Artifice's (we load after it), so this replaces its invisible bullet renderer. */
     @SubscribeEvent
     static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(EntityRegistry.BULLET.get(), ShotModelRenderer::new);
+        event.registerEntityRenderer(IronsArtificeEntities.BULLET.get(), ShotModelRenderer::new);
         AttachmentRenderableRegistry.register(SightAim.ATTACHMENT,
                 new AttachmentGeoRenderer(new SimpleItemGeoModel<>(HeavyArtillery.MODID, "reflex_sight", "model/reflex_sight", "empty")));
     }

@@ -30,7 +30,7 @@ public final class SpinUp {
         }
         double penalty = maxPenalty * (1 - progress(event.getEntity(), profile));
         if (penalty > 0) {
-            profile.modifyValue(ShotComponents.FIRE_DELAY, new ValueModifier(penalty, ValueModifier.Operation.ADD, ValueModifier.Type.HARMFUL));
+            profile.modifyValue(ShotComponents.FIRE_DELAY, new ValueModifier(penalty, ValueModifier.Operation.ADD));
         }
     }
 

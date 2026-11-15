@@ -31,11 +31,11 @@ public final class Brace {
         ShotProfile profile = event.getShotProfile();
         double spread = HeavyMath.fraction(profile.value(HeavyShotComponents.BRACE_SPREAD_REDUCTION));
         if (spread > 0) {
-            profile.modifyValue(ShotComponents.SPREAD, new ValueModifier(-spread, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
+            profile.modifyValue(ShotComponents.SPREAD, new ValueModifier(-spread, ValueModifier.Operation.MULTIPLY_TOTAL));
         }
         double recoil = HeavyMath.fraction(profile.value(HeavyShotComponents.BRACE_RECOIL_REDUCTION));
         if (recoil > 0) {
-            profile.modifyValue(ShotComponents.CAMERA_RECOIL_MULTIPLIER, new ValueModifier(-recoil, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
+            profile.modifyValue(ShotComponents.CAMERA_RECOIL_MULTIPLIER, new ValueModifier(-recoil, ValueModifier.Operation.MULTIPLY_TOTAL));
         }
     }
 

@@ -21,7 +21,7 @@ import io.redspace.irons_artifice.gun.GunProfile;
 import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.BlackpowderChargeOnHit;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.IgnitePostHit;
-import io.redspace.irons_artifice.registry.SoundRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeSounds;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.Vec3;
@@ -58,21 +58,21 @@ public final class HeavyWeapons {
                             .value(HeavyShotComponents.BRACE_SPREAD_REDUCTION, 0.5)
                             .value(HeavyShotComponents.BRACE_RECOIL_REDUCTION, 0.4)
                             .gunshotSound(
-                                    GunShotSoundSettings.standardShot(SoundRegistry.CLOCKWORK_RIFLE_SHOOT, 0.85f),
-                                    GunShotSoundSettings.standardEcho(SoundRegistry.BULLET_ECHO_GENERIC, 0.9f),
+                                    GunShotSoundSettings.standardShot(IronsArtificeSounds.CLOCKWORK_RIFLE_SHOOT, 0.85f),
+                                    GunShotSoundSettings.standardEcho(IronsArtificeSounds.BULLET_ECHO_GENERIC, 0.9f),
                                     PlayableSound.holder(SoundEvents.DISPENSER_FAIL))
                             .muzzleFlash(MuzzleFlashType.TRIANGLE, MuzzleFlashType.SMALL_STAR)
                             .build())
             .reloadCues(ReloadCueStack.of(
-                    new ReloadCue(0.40f, PlayableSound.of(SoundRegistry.CLOCKWORK_RIFLE_EJECT_MAG, 1.25f, 0.75f, 0.85f)),
+                    new ReloadCue(0.40f, PlayableSound.of(IronsArtificeSounds.CLOCKWORK_RIFLE_EJECT_MAG, 1.25f, 0.75f, 0.85f)),
                     // hopper seats at 1.8333s, crank winds 2.08-2.58s (see gunsteel_gatling reload animation)
-                    new ReloadCue(1.83f, PlayableSound.of(SoundRegistry.CLOCKWORK_RIFLE_INSERT_MAG, 1.25f, 0.75f, 0.85f)),
-                    new ReloadCue(2.45f, PlayableSound.of(SoundRegistry.COCK_HAMMER, 1.25f, 0.7f, 0.8f))
+                    new ReloadCue(1.83f, PlayableSound.of(IronsArtificeSounds.CLOCKWORK_RIFLE_INSERT_MAG, 1.25f, 0.75f, 0.85f)),
+                    new ReloadCue(2.45f, PlayableSound.of(IronsArtificeSounds.COCK_HAMMER, 1.25f, 0.7f, 0.8f))
             ))
-            .equipSound(PlayableSound.of(SoundRegistry.CLOCKWORK_RIFLE_EQUIP, 0.75f, 0.7f, 0.8f))
+            .equipSound(PlayableSound.of(IronsArtificeSounds.CLOCKWORK_RIFLE_EQUIP, 0.75f, 0.7f, 0.8f))
             .fireCycleCues(FireCycleCueStack.of(
                     // ratchet click of the crank
-                    new FireCycleCue(0.5f, PlayableSound.of(SoundRegistry.COCK_HAMMER, 0.35f, 1.5f, 1.7f))
+                    new FireCycleCue(0.5f, PlayableSound.of(IronsArtificeSounds.COCK_HAMMER, 0.35f, 1.5f, 1.7f))
             ))
             .animationAdjusters(HeavyHoldAdjuster.TILT)
             .build();
@@ -122,15 +122,15 @@ public final class HeavyWeapons {
                             .muzzleFlash(MuzzleFlashType.SMALL_STAR)
                             .build())
             .reloadCues(ReloadCueStack.of(
-                    new ReloadCue(0.40f, PlayableSound.of(SoundRegistry.CLOCKWORK_RIFLE_EJECT_MAG, 1.25f, 0.7f, 0.8f)),
+                    new ReloadCue(0.40f, PlayableSound.of(IronsArtificeSounds.CLOCKWORK_RIFLE_EJECT_MAG, 1.25f, 0.7f, 0.8f)),
                     // capsule seats at 1.8333s, the valve wheel turns 2.08-2.58s, then the pilot flame catches
-                    new ReloadCue(1.83f, PlayableSound.of(SoundRegistry.CLOCKWORK_RIFLE_INSERT_MAG, 1.25f, 0.7f, 0.8f)),
-                    new ReloadCue(2.20f, PlayableSound.of(SoundRegistry.COCK_HAMMER, 1.0f, 0.6f, 0.7f)),
-                    new ReloadCue(2.45f, PlayableSound.of(SoundRegistry.COCK_HAMMER, 1.0f, 0.6f, 0.7f)),
+                    new ReloadCue(1.83f, PlayableSound.of(IronsArtificeSounds.CLOCKWORK_RIFLE_INSERT_MAG, 1.25f, 0.7f, 0.8f)),
+                    new ReloadCue(2.20f, PlayableSound.of(IronsArtificeSounds.COCK_HAMMER, 1.0f, 0.6f, 0.7f)),
+                    new ReloadCue(2.45f, PlayableSound.of(IronsArtificeSounds.COCK_HAMMER, 1.0f, 0.6f, 0.7f)),
                     new ReloadCue(2.65f, PlayableSound.of(PlayableSound.holder(SoundEvents.FLINTANDSTEEL_USE), 1.0f, 0.8f, 0.9f)),
                     new ReloadCue(2.70f, PlayableSound.of(PlayableSound.holder(SoundEvents.FIRECHARGE_USE), 0.6f, 1.2f, 1.3f))
             ))
-            .equipSound(PlayableSound.of(SoundRegistry.CLOCKWORK_RIFLE_EQUIP, 0.75f, 0.6f, 0.7f))
+            .equipSound(PlayableSound.of(IronsArtificeSounds.CLOCKWORK_RIFLE_EQUIP, 0.75f, 0.6f, 0.7f))
             .animationAdjusters(HeavyHoldAdjuster.TILT)
             .build();
 
@@ -190,18 +190,18 @@ public final class HeavyWeapons {
                             })
                             .gunshotSound(
                                     new GunShotSoundSettings(PlayableSound.holder(SoundEvents.FIREWORK_ROCKET_LAUNCH), 0.5f, 0.6f, -1, 0, 128),
-                                    GunShotSoundSettings.standardEcho(SoundRegistry.BULLET_ECHO_MUZZLELOADER, 0.7f),
+                                    GunShotSoundSettings.standardEcho(IronsArtificeSounds.BULLET_ECHO_MUZZLELOADER, 0.7f),
                                     PlayableSound.holder(SoundEvents.DISPENSER_FAIL))
                             .muzzleFlash(MuzzleFlashType.LARGE)
                             .build())
             .reloadCues(ReloadCueStack.of(
                     // muzzle tipped up (0-0.4s), a rocket fetched and slid down the tube (1.2-1.9s), the igniter cocked (2.75s)
-                    new ReloadCue(0.15f, PlayableSound.of(SoundRegistry.LEATHER_ACCENT, 1.25f, 0.75f, 0.85f)),
-                    new ReloadCue(1.20f, PlayableSound.of(SoundRegistry.FLINTLOCK_RELOAD_INSERT_BULLET, 1.25f, 0.6f, 0.7f)),
-                    new ReloadCue(1.90f, PlayableSound.of(SoundRegistry.ARQUEBUS_LOAD, 1.25f, 0.6f, 0.7f)),
-                    new ReloadCue(2.75f, PlayableSound.of(SoundRegistry.COCK_HAMMER, 1.25f, 0.7f, 0.8f))
+                    new ReloadCue(0.15f, PlayableSound.of(IronsArtificeSounds.LEATHER_ACCENT, 1.25f, 0.75f, 0.85f)),
+                    new ReloadCue(1.20f, PlayableSound.of(IronsArtificeSounds.FLINTLOCK_RELOAD_INSERT_BULLET, 1.25f, 0.6f, 0.7f)),
+                    new ReloadCue(1.90f, PlayableSound.of(IronsArtificeSounds.ARQUEBUS_LOAD, 1.25f, 0.6f, 0.7f)),
+                    new ReloadCue(2.75f, PlayableSound.of(IronsArtificeSounds.COCK_HAMMER, 1.25f, 0.7f, 0.8f))
             ))
-            .equipSound(PlayableSound.of(SoundRegistry.MUSKET_EQUIP, 0.75f, 0.6f, 0.7f))
+            .equipSound(PlayableSound.of(IronsArtificeSounds.MUSKET_EQUIP, 0.75f, 0.6f, 0.7f))
             .animationAdjusters(AnimationAdjuster.LOWER_HAMMER, HeavyHoldAdjuster.LOADED_ROUND)
             .build();
 

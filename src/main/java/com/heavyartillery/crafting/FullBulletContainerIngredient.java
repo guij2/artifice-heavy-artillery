@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import io.redspace.irons_artifice.item.BulletContainerContents;
 import io.redspace.irons_artifice.item.BulletContainerItem;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -62,7 +62,7 @@ public final class FullBulletContainerIngredient implements ICustomIngredient {
         if (empty == null || empty.capacity() <= 0) {
             return stack;
         }
-        Item bullet = ItemRegistry.BULLET.get();
+        Item bullet = IronsArtificeItems.BULLET.get();
         int stackSize = bullet.getDefaultMaxStackSize();
         List<ItemStack> stacks = new ArrayList<>();
         for (int remaining = empty.capacity(); remaining > 0; remaining -= stackSize) {

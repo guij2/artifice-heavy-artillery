@@ -25,8 +25,8 @@ import java.util.function.Consumer;
 public final class PortableTripodModifier extends ConfiguredModifier {
     public PortableTripodModifier() {
         super(() -> Map.of(
-                HeavyShotComponents.MOUNTED_SPREAD_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.TRIPOD_SPREAD_REDUCTION), ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL),
-                HeavyShotComponents.MOUNTED_RECOIL_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.TRIPOD_RECOIL_REDUCTION), ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL)
+                HeavyShotComponents.MOUNTED_SPREAD_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.TRIPOD_SPREAD_REDUCTION), ValueModifier.Operation.ADD),
+                HeavyShotComponents.MOUNTED_RECOIL_REDUCTION, new ValueModifier(HAConfig.get(HAConfig.TRIPOD_RECOIL_REDUCTION), ValueModifier.Operation.ADD)
         ));
     }
 

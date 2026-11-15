@@ -13,7 +13,7 @@ import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -39,9 +39,9 @@ final class TripodTests {
 
     static void mountedCutsSpreadAndRecoil(GameTestHelper helper) {
         // against the same gun crouched without a tripod, which has the parent mod's own crouch bonus
-        Player plain = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get()));
+        Player plain = holding(helper, gunWith(IronsArtificeItems.CLOCKWORK_RIFLE.get()));
         mount(plain);
-        Player tripod = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get(), HAItems.PORTABLE_TRIPOD.get()));
+        Player tripod = holding(helper, gunWith(IronsArtificeItems.CLOCKWORK_RIFLE.get(), HAItems.PORTABLE_TRIPOD.get()));
         mount(tripod);
         helper.assertTrue(TripodMount.isMounted(tripod), "crouching on the ground mounts the tripod");
         ShotProfile crouched = compose(plain);
@@ -55,8 +55,8 @@ final class TripodTests {
     }
 
     static void noEffectStanding(GameTestHelper helper) {
-        Player plain = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get()));
-        Player tripod = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get(), HAItems.PORTABLE_TRIPOD.get()));
+        Player plain = holding(helper, gunWith(IronsArtificeItems.CLOCKWORK_RIFLE.get()));
+        Player tripod = holding(helper, gunWith(IronsArtificeItems.CLOCKWORK_RIFLE.get(), HAItems.PORTABLE_TRIPOD.get()));
         helper.assertFalse(TripodMount.isMounted(tripod), "standing is not mounted");
         assertNear(helper, compose(tripod).value(ShotComponents.SPREAD), compose(plain).value(ShotComponents.SPREAD), "spread standing");
         assertNear(helper, compose(tripod).value(ShotComponents.CAMERA_RECOIL_MULTIPLIER), compose(plain).value(ShotComponents.CAMERA_RECOIL_MULTIPLIER),
@@ -90,19 +90,19 @@ final class TripodTests {
     }
 
     static void fitsAlongsideOtherAttachments(GameTestHelper helper) {
-        ItemStack gun = gunWith(ItemRegistry.MUSKET.get(), HAItems.PORTABLE_TRIPOD.get(), ItemRegistry.SCOPE_ATTACHMENT_MODIFIER.get());
+        ItemStack gun = gunWith(IronsArtificeItems.MUSKET.get(), HAItems.PORTABLE_TRIPOD.get(), IronsArtificeItems.SCOPE_ATTACHMENT_MODIFIER.get());
         AttachmentMap attachments = gun.get(DataComponentRegistry.ATTACHMENT.get());
         helper.assertTrue(attachments != null && attachments.attachments().containsKey(TripodMount.SOCKET), "the tripod is attached");
         helper.assertTrue(attachments.attachments().size() == 2, "and so is the scope: " + attachments.attachments());
         helper.assertTrue(TripodMount.hasTripod(gun), "hasTripod");
-        helper.assertFalse(TripodMount.hasTripod(gunWith(ItemRegistry.MUSKET.get(), ItemRegistry.SCOPE_ATTACHMENT_MODIFIER.get())), "a scope alone is no tripod");
+        helper.assertFalse(TripodMount.hasTripod(gunWith(IronsArtificeItems.MUSKET.get(), IronsArtificeItems.SCOPE_ATTACHMENT_MODIFIER.get())), "a scope alone is no tripod");
         helper.succeed();
     }
 
     static void secondTripodAddsNothing(GameTestHelper helper) {
-        Player one = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get(), HAItems.PORTABLE_TRIPOD.get()));
+        Player one = holding(helper, gunWith(IronsArtificeItems.CLOCKWORK_RIFLE.get(), HAItems.PORTABLE_TRIPOD.get()));
         mount(one);
-        Player two = holding(helper, gunWith(ItemRegistry.CLOCKWORK_RIFLE.get(), HAItems.PORTABLE_TRIPOD.get(), HAItems.PORTABLE_TRIPOD.get()));
+        Player two = holding(helper, gunWith(IronsArtificeItems.CLOCKWORK_RIFLE.get(), HAItems.PORTABLE_TRIPOD.get(), HAItems.PORTABLE_TRIPOD.get()));
         mount(two);
         assertNear(helper, compose(two).value(HeavyShotComponents.MOUNTED_SPREAD_REDUCTION), HAConfig.get(HAConfig.TRIPOD_SPREAD_REDUCTION), "mounted spread reduction with two tripods");
         assertNear(helper, compose(two).value(HeavyShotComponents.MOUNTED_RECOIL_REDUCTION), HAConfig.get(HAConfig.TRIPOD_RECOIL_REDUCTION), "mounted recoil reduction with two tripods");

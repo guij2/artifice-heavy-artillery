@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 public final class EnchantedMagazineModifier extends ValueStackModifier {
     public EnchantedMagazineModifier() {
         super(Map.of(
-                HeavyShotComponents.RESERVE_AMMO_COST, new ValueModifier(-1, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL)
+                HeavyShotComponents.RESERVE_AMMO_COST, new ValueModifier(-1, ValueModifier.Operation.MULTIPLY_TOTAL)
         ));
     }
 

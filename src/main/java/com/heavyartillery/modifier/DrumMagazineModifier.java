@@ -14,8 +14,8 @@ import java.util.Map;
 public final class DrumMagazineModifier extends ConfiguredModifier {
     public DrumMagazineModifier() {
         super(() -> Map.of(
-                HeavyShotComponents.MAGAZINE_CAPACITY, new ValueModifier(HAConfig.get(HAConfig.DRUM_CAPACITY_BONUS), ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL),
-                ShotComponents.RELOAD_SPEED_MULTIPLIER, new ValueModifier(-HAConfig.get(HAConfig.DRUM_RELOAD_PENALTY), ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL)
+                HeavyShotComponents.MAGAZINE_CAPACITY, new ValueModifier(HAConfig.get(HAConfig.DRUM_CAPACITY_BONUS), ValueModifier.Operation.MULTIPLY_TOTAL),
+                ShotComponents.RELOAD_SPEED_MULTIPLIER, new ValueModifier(-HAConfig.get(HAConfig.DRUM_RELOAD_PENALTY), ValueModifier.Operation.MULTIPLY_TOTAL)
         ));
     }
 }
