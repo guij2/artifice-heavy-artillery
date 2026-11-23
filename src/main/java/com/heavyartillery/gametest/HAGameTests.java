@@ -87,6 +87,7 @@ public final class HAGameTests {
         TESTS.put("drums_slow_reload_and_stack", ModifierTests::drumsSlowReloadAndStack);
         TESTS.put("drum_reload_through_full_flow", ModifierTests::drumReloadThroughFullFlow);
         TESTS.put("drum_fitted_mid_reload", ModifierTests::drumFittedMidReload);
+        TESTS.put("drum_capacity_during_reload_finish", ModifierTests::drumCapacityDuringReloadFinish);
         TESTS.put("rifled_shot_hits_harder_after_flying", ModifierTests::rifledShotHitsHarderAfterFlying);
         TESTS.put("rifling_caps_and_stacks", ModifierTests::riflingCapsAndStacks);
         TESTS.put("powder_ram_charges_with_time", ModifierTests::powderRamChargesWithTime);

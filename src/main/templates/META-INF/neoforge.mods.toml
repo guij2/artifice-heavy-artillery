@@ -14,6 +14,9 @@ An addon for Iron's Arms 'n Artifice that adds stronger, heavier weapons.
 [[mixins]]
 config="${mod_id}.mixins.json"
 
+[[mixins]]
+config="${mod_id}.compat.mixins.json"
+
 [[dependencies.${mod_id}]]
     modId="neoforge"
     type="required"

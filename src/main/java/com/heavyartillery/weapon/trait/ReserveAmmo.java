@@ -10,12 +10,15 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.function.IntConsumer;
+
 /**
  * Reload-time ammo cost, driven by {@link HeavyShotComponents#RESERVE_AMMO_COST}.
  * <p>
  * Iron's Arms 'n Artifice reloads by counting the bullets a player carries and then consuming as many as it loads, with no
  * event in between. {@code GunplayManagerMixin} wraps those two calls and routes them through here, so any modifier that
- * lowers the cost works on every gun.
+ * lowers the cost works on every gun. {@code SpellBulletReloadHelperMixin} does the same for Iron's Arms 'n Artifice:
+ * Spellbullet, which counts and takes bullets itself.
  */
 public final class ReserveAmmo {
     private ReserveAmmo() {
@@ -66,6 +69,21 @@ public final class ReserveAmmo {
             }
         }
         return (int) Math.min(Integer.MAX_VALUE, paid);
+    }
+
+    /**
+     * Takes what {@code loaded} rounds cost through {@code consume} (the parent's bullet take, or another mod's), with the
+     * refund chime for rounds that came free.
+     */
+    public static void pay(Player player, ItemStack gun, int loaded, IntConsumer consume) {
+        double cost = cost(player, gun);
+        int paid = toConsume(loaded, cost, player.getRandom());
+        if (paid > 0) {
+            consume.accept(paid);
+        }
+        if (cost < 1) {
+            onRefund(player, loaded - paid);
+        }
     }
 
     /**

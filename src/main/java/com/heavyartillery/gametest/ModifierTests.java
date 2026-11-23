@@ -8,6 +8,7 @@ import com.heavyartillery.modifier.RifledBarrelModifier;
 import com.heavyartillery.registry.HAAttachments;
 import com.heavyartillery.registry.HAItems;
 import com.heavyartillery.weapon.HeavyShotComponents;
+import com.heavyartillery.weapon.trait.ReloadFinish;
 import com.heavyartillery.weapon.trait.Rifling;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.data.ShotComponents;
@@ -88,6 +89,25 @@ final class ModifierTests {
         container.setChanged();
         helper.assertValueEqual(finishReload(helper, player, gun), 90, "the reload fills the drummed capacity");
         helper.assertValueEqual(GunplayManager.countBullets(player), 128 - 90, "and pays for every round");
+        helper.succeed();
+    }
+
+    /**
+     * A mod that finishes reloads itself (Spellbullet) reads {@code GunItem.magazineCapacity()}: while a gun's reload is
+     * being finished it is that gun's drummed capacity, and the parent's own finish does not apply the drum twice.
+     */
+    static void drumCapacityDuringReloadFinish(GameTestHelper helper) {
+        Player player = holding(helper, gunWith(IronsArtificeItems.SIX_SHOOTER.get(), HAItems.DRUM_MAGAZINE.get()));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
+        ItemStack gun = player.getMainHandItem();
+        GunItem item = (GunItem) gun.getItem();
+        helper.assertValueEqual(item.magazineCapacity(), 6, "plain capacity outside a reload");
+        helper.assertValueEqual(ReloadFinish.run(gun, item::magazineCapacity), 9, "drummed capacity while its reload finishes");
+        helper.assertValueEqual(ReloadFinish.run(new ItemStack(item), item::magazineCapacity), 6, "a gun without a drum keeps its own");
+        GunItem.setMagazine(gun, new MagazineContents(0));
+        ReloadFinish.run(gun, () -> GunplayManager.attemptFinishReload(player, gun, 0));
+        helper.assertValueEqual(GunItem.getMagazine(gun).count(), 9, "the parent's finish fills 9, not 14");
+        helper.assertValueEqual(GunplayManager.countBullets(player), 64 - 9, "and pays for 9");
         helper.succeed();
     }
 
