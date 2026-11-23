@@ -2,8 +2,10 @@ package com.heavyartillery.mixin;
 
 import com.heavyartillery.weapon.HeavyGunItem;
 import com.heavyartillery.weapon.trait.MagazineSize;
+import com.heavyartillery.weapon.trait.ReloadFinish;
 import com.heavyartillery.weapon.trait.SightAim;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.redspace.irons_artifice.item.GunItem;
 import net.minecraft.world.InteractionHand;
@@ -51,6 +53,16 @@ public abstract class GunItemMixin {
     )
     private int artifice_heavy_artillery$barCapacity(int base, @Local(argsOnly = true) ItemStack stack) {
         return MagazineSize.capacity(stack, base);
+    }
+
+    /**
+     * While this gun's reload is being finished ({@link ReloadFinish}), its capacity is the one after {@link MagazineSize},
+     * whoever asks: a mod that finishes reloads itself reads the plain capacity.
+     */
+    @ModifyReturnValue(method = "magazineCapacity", at = @At("RETURN"))
+    private int artifice_heavy_artillery$finishingCapacity(int base) {
+        ItemStack gun = ReloadFinish.gun();
+        return gun != null && gun.getItem() == (Object) this ? MagazineSize.capacity(gun, base) : base;
     }
 
     /** Holding use with a reflex sight aims down it, as the parent's scope does (but silently). Not while reloading. */

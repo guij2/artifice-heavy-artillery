@@ -2,6 +2,7 @@ package com.heavyartillery.mixin;
 
 import com.heavyartillery.weapon.HeavyGunItem;
 import com.heavyartillery.weapon.trait.MagazineSize;
+import com.heavyartillery.weapon.trait.ReloadFinish;
 import com.heavyartillery.weapon.trait.ReserveAmmo;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -38,14 +39,7 @@ public abstract class GunplayManagerMixin {
             at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/item/GunplayManager;consumeBullets(Lnet/minecraft/world/entity/player/Player;I)V")
     )
     private static void artifice_heavy_artillery$reserveAmmoConsume(Player player, int amount, Operation<Void> original, @Local(argsOnly = true) ItemStack gun) {
-        double cost = ReserveAmmo.cost(player, gun);
-        int paid = ReserveAmmo.toConsume(amount, cost, player.getRandom());
-        if (paid > 0) {
-            original.call(player, paid);
-        }
-        if (cost < 1) {
-            ReserveAmmo.onRefund(player, amount - paid);
-        }
+        ReserveAmmo.pay(player, gun, amount, paid -> original.call(player, paid));
     }
 
     @ModifyExpressionValue(
@@ -53,7 +47,8 @@ public abstract class GunplayManagerMixin {
             at = @At(value = "INVOKE", target = "Lio/redspace/irons_artifice/item/GunItem;magazineCapacity()I")
     )
     private static int artifice_heavy_artillery$reloadCapacity(int base, @Local(argsOnly = true) ItemStack gun) {
-        return MagazineSize.capacity(gun, base);
+        // finishing through ServerEventsMixin, GunItemMixin has already given the capacity after MagazineSize
+        return ReloadFinish.gun() == gun ? base : MagazineSize.capacity(gun, base);
     }
 
     /**

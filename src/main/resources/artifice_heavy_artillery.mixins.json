@@ -21,6 +21,7 @@
     "GunplayManagerMixin",
     "GunProfileMixin",
     "RecoilHelperMixin",
+    "ServerEventsMixin",
     "TricorneItemMixin"
   ]
 }
