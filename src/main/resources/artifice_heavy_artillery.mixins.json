@@ -1,0 +1,29 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "com.heavyartillery.mixin",
+  "refmap": "artifice_heavy_artillery.refmap.json",
+  "client": [
+    "AmmoCountHudOverlayMixin",
+    "ClientHelperMixin",
+    "CrosshairRendererMixin",
+    "GunArmPosesMixin",
+    "GunInHandRendererMixin",
+    "LocalPlayerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "BulletMixin",
+    "CowboyHatItemMixin",
+    "GunItemMixin",
+    "GunModifierMenuMixin",
+    "GunplayManagerMixin",
+    "GunProfileMixin",
+    "LivingEntityMixin",
+    "RecoilHelperMixin",
+    "ServerEventsMixin",
+    "TricorneItemMixin"
+  ]
+}

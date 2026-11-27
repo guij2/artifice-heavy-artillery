@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "minecraft:blast_furnace"
+    },
+    "I": {
+      "tag": "forge:storage_blocks/iron"
+    },
+    "L": {
+      "item": "minecraft:lava_bucket"
+    },
+    "M": {
+      "item": "artifice_heavy_artillery:heavy_components"
+    },
+    "N": {
+      "tag": "forge:ingots/netherite"
+    },
+    "W": {
+      "tag": "minecraft:logs"
+    }
+  },
+  "pattern": [
+    "ILF",
+    "MNM",
+    " W "
+  ],
+  "result": {
+    "item": "artifice_heavy_artillery:gunsteel_crucible"
+  },
+  "show_notification": true
+}

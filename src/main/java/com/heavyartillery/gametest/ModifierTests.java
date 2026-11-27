@@ -1,0 +1,327 @@
+package com.heavyartillery.gametest;
+
+import com.heavyartillery.HAConfig;
+import com.heavyartillery.HeavyArtillery;
+import com.heavyartillery.modifier.DrumMagazineModifier;
+import com.heavyartillery.modifier.PowderRamModifier;
+import com.heavyartillery.modifier.RifledBarrelModifier;
+import com.heavyartillery.weapon.HeavyEntityData;
+import com.heavyartillery.registry.HAItems;
+import com.heavyartillery.weapon.HeavyShotComponents;
+import com.heavyartillery.weapon.trait.ReloadFinish;
+import com.heavyartillery.weapon.trait.Rifling;
+import io.redspace.irons_artifice.data.ReloadResult;
+import io.redspace.irons_artifice.data.ShotComponents;
+import io.redspace.irons_artifice.entity.Bullet;
+import io.redspace.irons_artifice.gun.ShotProfile;
+import io.redspace.irons_artifice.item.GunItem;
+import io.redspace.irons_artifice.item.GunplayManager;
+import io.redspace.irons_artifice.item.MagazineContents;
+import io.redspace.irons_artifice.item.ReloadState;
+import io.redspace.irons_artifice.menu.GunContainer;
+import io.redspace.irons_artifice.modifier.GunModifier;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.ChatFormatting;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Drum Magazine, Rifled Barrel and Powder Ram: on our guns and the parent's.
+ */
+final class ModifierTests {
+    private ModifierTests() {
+    }
+
+    /* **********************************
+     * Drum Magazine
+     ********************************** */
+
+    static void drumEnlargesMagazine(GameTestHelper helper) {
+        TestSupport.assertValueEqual(helper, reloadFully(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), HAItems.DRUM_MAGAZINE.get())), 90, "a drummed Gatling holds 60 + 50%");
+        TestSupport.assertValueEqual(helper, reloadFully(helper, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.DRUM_MAGAZINE.get())), 2, "a drummed musket holds 2 (1.5 rounded up)");
+        TestSupport.assertValueEqual(helper, reloadFully(helper, gunWith(IronsArtificeItems.SIX_SHOOTER.get(), HAItems.DRUM_MAGAZINE.get())), 9, "a drummed Six-Shooter holds 9");
+        TestSupport.assertValueEqual(helper, reloadFully(helper, gunWith(IronsArtificeItems.SIX_SHOOTER.get())), 6, "without a drum, 6");
+        helper.succeed();
+    }
+
+    static void drumReloadThroughFullFlow(GameTestHelper helper) {
+        Player player = holding(helper, gunWith(HAItems.GUNSTEEL_GATLING.get(), HAItems.DRUM_MAGAZINE.get()));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
+        ItemStack gun = player.getMainHandItem();
+        GunItem.setMagazine(gun, new MagazineContents(60));
+        TestSupport.assertValueEqual(helper, reloadThroughFlow(helper, player, gun), 90, "a full Gatling given a drum tops up to 90");
+        GunItem.setMagazine(gun, new MagazineContents(0));
+        TestSupport.assertValueEqual(helper, reloadThroughFlow(helper, player, gun), 90, "an empty drummed Gatling fills to 90");
+        helper.succeed();
+    }
+
+    /** The modifier menu opens mid-reload: a drum fitted then still counts when the reload finishes. */
+    static void drumFittedMidReload(GameTestHelper helper) {
+        Player player = holding(helper, new ItemStack(HAItems.GUNSTEEL_GATLING.get()));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
+        ItemStack gun = player.getMainHandItem();
+        GunItem.setMagazine(gun, new MagazineContents(0));
+        TestSupport.assertValueEqual(helper, GunplayManager.attemptStartReload(player, gun), ReloadResult.STARTING_RELOAD, "reload starts");
+        GunContainer container = new GunContainer(gun);
+        container.setItem(0, new ItemStack(HAItems.DRUM_MAGAZINE.get()));
+        container.setChanged();
+        TestSupport.assertValueEqual(helper, finishReload(helper, player, gun), 90, "the reload fills the drummed capacity");
+        TestSupport.assertValueEqual(helper, GunplayManager.countBullets(player), 128 - 90, "and pays for every round");
+        helper.succeed();
+    }
+
+    /**
+     * A gun that was never fired has no magazine tag, which the parent reads as full at {@code magazineCapacity()}. Its
+     * finish (as {@code ServerEventsMixin} runs it, inside {@link ReloadFinish}) must still see the 6 it held, not 9.
+     */
+    static void drumOnFreshGunReloads(GameTestHelper helper) {
+        Player player = holding(helper, gunWith(IronsArtificeItems.SIX_SHOOTER.get(), HAItems.DRUM_MAGAZINE.get()));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
+        ItemStack gun = player.getMainHandItem();
+        helper.assertFalse(gun.getTag() != null && gun.getTag().contains(MagazineContents.TAG_KEY), "a fresh gun has no magazine tag");
+        TestSupport.assertValueEqual(helper, GunplayManager.attemptStartReload(player, gun), ReloadResult.STARTING_RELOAD, "reload starts");
+        ReloadState finished = null;
+        for (int tick = 0; tick < 2000 && finished == null; tick++) {
+            finished = ReloadState.tickReload(gun, (GunItem) gun.getItem(), player);
+        }
+        helper.assertTrue(finished != null, "reload finishes");
+        int rounds = finished.roundsToLoad();
+        TestSupport.assertValueEqual(helper, ReloadFinish.run(gun, () -> GunplayManager.attemptFinishReload(player, gun, rounds)),
+                ReloadResult.FINISHED_RELOAD, "reload result");
+        TestSupport.assertValueEqual(helper, GunItem.getMagazine(gun).count(), 9, "the drum fills to 9");
+        TestSupport.assertValueEqual(helper, GunplayManager.countBullets(player), 64 - 3, "paying for the 3 it was missing");
+        helper.succeed();
+    }
+
+    /**
+     * A mod that finishes reloads itself (Spellbullet) reads {@code GunItem.magazineCapacity()}: while a gun's reload is
+     * being finished it is that gun's drummed capacity, and the parent's own finish does not apply the drum twice.
+     */
+    static void drumCapacityDuringReloadFinish(GameTestHelper helper) {
+        Player player = holding(helper, gunWith(IronsArtificeItems.SIX_SHOOTER.get(), HAItems.DRUM_MAGAZINE.get()));
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 64));
+        ItemStack gun = player.getMainHandItem();
+        GunItem item = (GunItem) gun.getItem();
+        TestSupport.assertValueEqual(helper, item.magazineCapacity(), 6, "plain capacity outside a reload");
+        TestSupport.assertValueEqual(helper, ReloadFinish.run(gun, item::magazineCapacity), 9, "drummed capacity while its reload finishes");
+        TestSupport.assertValueEqual(helper, ReloadFinish.run(new ItemStack(item), item::magazineCapacity), 6, "a gun without a drum keeps its own");
+        GunItem.setMagazine(gun, new MagazineContents(0));
+        ReloadFinish.run(gun, () -> GunplayManager.attemptFinishReload(player, gun, 0));
+        TestSupport.assertValueEqual(helper, GunItem.getMagazine(gun).count(), 9, "the parent's finish fills 9, not 14");
+        TestSupport.assertValueEqual(helper, GunplayManager.countBullets(player), 64 - 9, "and pays for 9");
+        helper.succeed();
+    }
+
+    static void drumsSlowReloadAndStack(GameTestHelper helper) {
+        ItemStack one = gunWith(HAItems.GUNSTEEL_GATLING.get(), HAItems.DRUM_MAGAZINE.get());
+        ItemStack two = gunWith(HAItems.GUNSTEEL_GATLING.get(), HAItems.DRUM_MAGAZINE.get(), HAItems.DRUM_MAGAZINE.get());
+        double slower = 1 - HAConfig.get(HAConfig.DRUM_RELOAD_PENALTY);
+        assertNear(helper, compose(null, one).value(ShotComponents.RELOAD_SPEED_MULTIPLIER), slower, "reload speed");
+        assertNear(helper, compose(null, two).value(ShotComponents.RELOAD_SPEED_MULTIPLIER), slower * slower, "reload speed with two drums");
+        TestSupport.assertValueEqual(helper, reloadFully(helper, two), 135, "two drums: 60 x 1.5 x 1.5");
+        helper.succeed();
+    }
+
+    /* **********************************
+     * Rifled Barrel
+     ********************************** */
+
+    /** Two golems 5 blocks off, one shot each from the same musket, one of them rifled: the rifled one hurts more. */
+    static void rifledShotHitsHarderAfterFlying(GameTestHelper helper) {
+        IronGolem plainTarget = helper.spawnWithNoFreeWill(EntityType.IRON_GOLEM, new BlockPos(1, 2, 5));
+        IronGolem rifledTarget = helper.spawnWithNoFreeWill(EntityType.IRON_GOLEM, new BlockPos(4, 2, 5));
+        float full = plainTarget.getMaxHealth();
+        shoot(helper, compose(null, gunWith(IronsArtificeItems.MUSKET.get())), plainTarget);
+        shoot(helper, compose(null, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.RIFLED_BARREL.get())), rifledTarget);
+        helper.succeedWhen(() -> {
+            float plain = full - plainTarget.getHealth();
+            float rifled = full - rifledTarget.getHealth();
+            helper.assertTrue(plain > 0 && rifled > 0, "both golems are hit");
+            // about 4.5 blocks flown: +9%
+            helper.assertTrue(rifled > plain * 1.04 && rifled < plain * 1.15, "the rifled shot hits harder: " + rifled + " vs " + plain);
+        });
+    }
+
+    static void riflingCapsAndStacks(GameTestHelper helper) {
+        ShotProfile one = compose(null, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.RIFLED_BARREL.get()));
+        ShotProfile two = compose(null, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.RIFLED_BARREL.get(), HAItems.RIFLED_BARREL.get()));
+        assertNear(helper, two.value(HeavyShotComponents.RIFLING), 2 * HAConfig.get(HAConfig.RIFLED_DAMAGE_PER_BLOCK), "rifling with two barrels");
+        double slower = one.value(ShotComponents.RELOAD_SPEED_MULTIPLIER);
+        assertNear(helper, two.value(ShotComponents.RELOAD_SPEED_MULTIPLIER), slower * slower, "reload with two barrels");
+        Bullet bullet = new Bullet(IronsArtificeEntities.BULLET.get(), helper.getLevel());
+        bullet.applyProfile(one.copy());
+        assertNear(helper, Rifling.apply(bullet, 10, Vec3.ZERO, new Vec3(0, 0, 10)), 12, "10 blocks: +20%");
+        assertNear(helper, Rifling.apply(bullet, 10, Vec3.ZERO, new Vec3(0, 0, 100)), 16, "capped at +60% (30 blocks)");
+        bullet.applyProfile(two.copy());
+        assertNear(helper, Rifling.apply(bullet, 10, Vec3.ZERO, new Vec3(0, 0, 10)), 14, "two barrels, 10 blocks: +40%");
+        assertNear(helper, Rifling.apply(bullet, 10, Vec3.ZERO, new Vec3(0, 0, 100)), 22, "two barrels cap at +120%");
+        helper.succeed();
+    }
+
+    /* **********************************
+     * Powder Ram
+     ********************************** */
+
+    static void powderRamChargesWithTime(GameTestHelper helper) {
+        Player player = holding(helper, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.POWDER_RAM.get()));
+        double base = compose(null, gunWith(IronsArtificeItems.MUSKET.get())).value(ShotComponents.DAMAGE);
+        assertNear(helper, compose(player, player.getMainHandItem()).value(ShotComponents.DAMAGE), base * 1.5, "not fired yet: fully charged");
+        long now = helper.getLevel().getGameTime();
+        HeavyEntityData.of(player).artifice_heavy_artillery$setLastShot(now);
+        assertNear(helper, compose(player, player.getMainHandItem()).value(ShotComponents.DAMAGE), base, "just fired: no bonus");
+        int chargeTicks = HAConfig.get(HAConfig.POWDER_RAM_CHARGE_TICKS);
+        HeavyEntityData.of(player).artifice_heavy_artillery$setLastShot(now - chargeTicks / 2);
+        assertNear(helper, compose(player, player.getMainHandItem()).value(ShotComponents.DAMAGE), base * 1.25, "half charged");
+        HeavyEntityData.of(player).artifice_heavy_artillery$setLastShot(now - 200);
+        assertNear(helper, compose(player, player.getMainHandItem()).value(ShotComponents.DAMAGE), base * 1.5, "long after: fully charged");
+        Player twoRams = holding(helper, gunWith(IronsArtificeItems.MUSKET.get(), HAItems.POWDER_RAM.get(), HAItems.POWDER_RAM.get()));
+        assertNear(helper, compose(twoRams, twoRams.getMainHandItem()).value(ShotComponents.DAMAGE), base * 2, "two rams stack");
+        HeavyEntityData.of(twoRams).artifice_heavy_artillery$setLastShot(now - chargeTicks);
+        assertNear(helper, compose(twoRams, twoRams.getMainHandItem()).value(ShotComponents.DAMAGE), base * 1.5,
+                "two rams take twice as long to charge: half way after one ram's charge time");
+        HeavyEntityData.of(twoRams).artifice_heavy_artillery$setLastShot(now - 2L * chargeTicks);
+        assertNear(helper, compose(twoRams, twoRams.getMainHandItem()).value(ShotComponents.DAMAGE), base * 2, "and fully charged after two");
+        helper.succeed();
+    }
+
+    /* **********************************
+     * Descriptions and recipes
+     ********************************** */
+
+    static void descriptions(GameTestHelper helper) {
+        assertDescription(helper, new DrumMagazineModifier(), "150% Magazine Capacity | 80% Reload Speed");
+        assertDescription(helper, new RifledBarrelModifier(), "+2% Damage per block the shot travels, up to +60% | 85% Reload Speed");
+        assertDescription(helper, new PowderRamModifier(), "Up to +50% Damage, building over 1.5s since your last shot");
+        helper.assertTrue(new ItemStack(HAItems.POWDER_RAM.get()).getHoverName().getString().equals("Powder Ram Modifier"), "item name");
+        // colors come from each component's sentiment: more capacity is good, less reload speed is bad
+        assertColors(helper, new DrumMagazineModifier(), ChatFormatting.GREEN, ChatFormatting.RED);
+        assertColors(helper, new RifledBarrelModifier(), ChatFormatting.GREEN, ChatFormatting.RED);
+        helper.succeed();
+    }
+
+    static void recipes(GameTestHelper helper) {
+        ItemStack heavy = new ItemStack(HAItems.HEAVY_COMPONENTS.get());
+        ItemStack iron = new ItemStack(Items.IRON_INGOT);
+        ItemStack copper = new ItemStack(Items.COPPER_INGOT);
+        ItemStack ironBlock = new ItemStack(Items.IRON_BLOCK);
+        ItemStack powder = new ItemStack(IronsArtificeItems.BLACKPOWDER.get());
+        ItemStack stick = new ItemStack(Items.STICK);
+        ItemStack none = ItemStack.EMPTY;
+        assertRecipe(helper, "drum_magazine_modifier", TestSupport.grid(3, 3, List.of(iron, copper, iron, copper, heavy, copper, iron, copper, iron)));
+        assertRecipe(helper, "rifled_barrel_modifier", TestSupport.grid(1, 3, List.of(ironBlock, heavy, ironBlock)));
+        assertRecipe(helper, "powder_ram_modifier", TestSupport.grid(3, 3, List.of(powder, heavy, powder, powder, stick, powder, none, stick, none)));
+        helper.succeed();
+    }
+
+    /* **********************************
+     * Fixtures
+     ********************************** */
+
+    private static int reloadFully(GameTestHelper helper, ItemStack gun) {
+        Player player = holding(helper, gun);
+        player.getInventory().add(new ItemStack(IronsArtificeItems.BULLET.get(), 200));
+        GunItem.setMagazine(player.getMainHandItem(), new MagazineContents(0));
+        TestSupport.assertValueEqual(helper, GunplayManager.attemptFinishReload(player, player.getMainHandItem(), 0), ReloadResult.FINISHED_RELOAD, "reload");
+        return GunItem.getMagazine(player.getMainHandItem()).count();
+    }
+
+    /** One shot from 5 blocks in front of the target, aimed at its middle, the way GunplayManager fires them. */
+    private static void shoot(GameTestHelper helper, ShotProfile shot, IronGolem target) {
+        ServerLevel level = helper.getLevel();
+        Vec3 aim = target.getBoundingBox().getCenter();
+        Vec3 from = aim.add(0, 0, -5);
+        Bullet bullet = new Bullet(IronsArtificeEntities.BULLET.get(), level);
+        bullet.applyProfile(shot.copy());
+        bullet.setPos(from);
+        bullet.shoot(0, 0, 1, (float) shot.value(ShotComponents.BULLET_SPEED), 0);
+        level.addFreshEntity(bullet);
+    }
+
+    private static void assertDescription(GameTestHelper helper, GunModifier modifier, String expected) {
+        List<Component> lines = new ArrayList<>();
+        modifier.getDescriptionText(lines::add);
+        String text = String.join(" | ", lines.stream().map(Component::getString).toList());
+        helper.assertTrue(text.equals(expected), "description: expected \"" + expected + "\", was \"" + text + "\"");
+    }
+
+    private static void assertColors(GameTestHelper helper, GunModifier modifier, ChatFormatting... expected) {
+        List<Component> lines = new ArrayList<>();
+        modifier.getDescriptionText(lines::add);
+        TestSupport.assertValueEqual(helper, lines.size(), expected.length, "description lines");
+        for (int i = 0; i < expected.length; i++) {
+            TestSupport.assertValueEqual(helper, lines.get(i).getStyle().getColor(), TextColor.fromLegacyFormat(expected[i]), "color of \"" + lines.get(i).getString() + "\"");
+        }
+    }
+
+    private static void assertRecipe(GameTestHelper helper, String id, CraftingContainer grid) {
+        var match = TestSupport.craft(helper, grid);
+        helper.assertTrue(match.isPresent() && match.get().equals(HeavyArtillery.id(id)),
+                "recipe for " + id + ", got " + match.map(ResourceLocation::toString).orElse("nothing"));
+    }
+
+    private static Player holding(GameTestHelper helper, ItemStack gun) {
+        Player player = helper.makeMockSurvivalPlayer();
+        player.setItemSlot(EquipmentSlot.MAINHAND, gun);
+        player.setOnGround(true);
+        return player;
+    }
+
+    private static ShotProfile compose(Player player, ItemStack gun) {
+        return GunplayManager.compose(player, ((GunItem) gun.getItem()).getGun(), gun);
+    }
+
+    private static ItemStack gunWith(Item gun, Item... modifiers) {
+        ItemStack stack = new ItemStack(gun);
+        if (modifiers.length == 0) {
+            return stack;
+        }
+        GunContainer container = new GunContainer(stack);
+        for (int slot = 0; slot < modifiers.length; slot++) {
+            container.setItem(slot, new ItemStack(modifiers[slot]));
+        }
+        container.setChanged();
+        return container.getGunStack();
+    }
+
+    /** A whole reload as the parent runs it: started, ticked until done, then finished with the rounds it planned. */
+    private static int reloadThroughFlow(GameTestHelper helper, Player player, ItemStack gun) {
+        TestSupport.assertValueEqual(helper, GunplayManager.attemptStartReload(player, gun), ReloadResult.STARTING_RELOAD, "reload starts");
+        return finishReload(helper, player, gun);
+    }
+
+    /** Ticks a started reload until it is done, then finishes it as the parent does. */
+    private static int finishReload(GameTestHelper helper, Player player, ItemStack gun) {
+        ReloadState finished = null;
+        for (int tick = 0; tick < 2000 && finished == null; tick++) {
+            finished = ReloadState.tickReload(gun, (GunItem) gun.getItem(), player);
+        }
+        helper.assertTrue(finished != null, "reload finishes");
+        TestSupport.assertValueEqual(helper, GunplayManager.attemptFinishReload(player, gun, finished.roundsToLoad()), ReloadResult.FINISHED_RELOAD, "reload result");
+        return GunItem.getMagazine(gun).count();
+    }
+
+    private static void assertNear(GameTestHelper helper, double actual, double expected, String what) {
+        helper.assertTrue(Math.abs(actual - expected) < 1e-4, what + ": expected " + expected + ", was " + actual);
+    }
+}

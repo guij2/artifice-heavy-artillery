@@ -1,0 +1,153 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.141'
+    id 'idea'
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}
+
+version = mod_version
+group = mod_group_id
+
+sourceSets.main.resources {
+    srcDir('src/generated/resources')
+
+    exclude("**/*.bbmodel") // BlockBench project files
+    exclude("**/.cache/**") // datagen cache files (patterns are relative to each resource dir)
+}
+
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'GeckoLib'
+                url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+            }
+        }
+        filter { includeGroupAndSubgroups('software.bernie.geckolib') }
+    }
+    maven {
+        name = 'Redspace'
+        url = 'https://code.redspace.io/releases'
+    }
+}
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+legacyForge {
+    version = "${minecraft_version}-${forge_version}"
+
+    parchment {
+        minecraftVersion = parchment_minecraft_version
+        mappingsVersion = parchment_mappings_version
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+            // Iron's Arms 'n Artifice installs a game test reporter that writes here
+            systemProperty 'irons_artifice.gameTestReport', file('build/gametest-report.xml').getAbsolutePath()
+        }
+
+        data {
+            data()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            // Optional (require = 0) mixin hooks still fail loudly here, so a missed one shows up in testing. This fails
+            // other mods' optional hooks too: pass -PlooseMixins when testing alongside them
+            if (!project.hasProperty('looseMixins')) {
+                systemProperty 'mixin.debug.countInjections', 'true'
+            }
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
+}
+
+dependencies {
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    // MixinExtras ships inside Iron's Arms 'n Artifice; it is only needed here to compile against and in dev runs
+    compileOnly(annotationProcessor('io.github.llamalad7:mixinextras-common:0.5.5'))
+    runtimeOnly 'io.github.llamalad7:mixinextras-forge:0.5.5'
+
+    modImplementation "software.bernie.geckolib:geckolib-forge-${minecraft_version}:${geckolib_version}"
+    // their published metadata pins dependencies at local, remapped versions that are not on any maven
+    modImplementation("io.redspace:irons_lib:${irons_lib_version}") { transitive = false }
+    modImplementation("io.redspace:irons_artifice:${irons_artifice_version}") { transitive = false }
+}
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            forge_version          : forge_version,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            geckolib_version       : geckolib_version,
+            irons_lib_version      : irons_lib_version,
+            irons_artifice_version : irons_artifice_version,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+sourceSets.main.resources.srcDir generateModMetadata
+legacyForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xmaxerrs', '5000']
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+// MIT asks for the notice in every copy, the jar included
+tasks.named('jar') {
+    from('LICENSE')
+    // Forge 47 finds a mod's mixin configs in its manifest (dev runs get them from the mixin block above)
+    manifest.attributes('MixinConfigs': "${mod_id}.mixins.json")
+}
+
+// Optional local additions, not part of the repo
+if (file('local.gradle').exists()) {
+    apply from: 'local.gradle'
+}
